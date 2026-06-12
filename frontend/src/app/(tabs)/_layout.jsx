@@ -19,7 +19,6 @@ export default function TabsLayout() {
                 name="inventory" 
                 options={{ 
                     title: 'Inventory',
-                    // Later, we can hide this tab if the user isn't an Admin
                 }} 
             />
         </Tabs>
