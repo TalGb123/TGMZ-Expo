@@ -1,8 +1,21 @@
 import { Tabs } from 'expo-router';
+import { useAppTheme } from '../../components/theme-context';
 
 export default function TabsLayout() {
+    const { colors } = useAppTheme();
+
     return (
-        <Tabs screenOptions={{ headerShown: true }}>
+        <Tabs screenOptions={{ 
+            headerShown: true,
+            headerStyle: { backgroundColor: colors.background },
+            headerTintColor: colors.textMain,
+            tabBarStyle: { 
+                backgroundColor: colors.cardBackground, 
+                borderTopColor: colors.borderColor 
+            },
+            tabBarActiveTintColor: colors.primaryAccent,
+            tabBarInactiveTintColor: colors.textGrey
+        }}>
             <Tabs.Screen 
                 name="products" 
                 options={{ title: 'Store' }} 
@@ -17,9 +30,7 @@ export default function TabsLayout() {
             />
             <Tabs.Screen 
                 name="inventory" 
-                options={{ 
-                    title: 'Inventory',
-                }} 
+                options={{ title: 'Inventory' }} 
             />
         </Tabs>
     );

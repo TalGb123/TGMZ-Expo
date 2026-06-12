@@ -1,8 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import { useStyles } from '../../components/theme-context';
 
 export default function LoginScreen() {
     const router = useRouter();
+    const styles = useStyles(generateStyles);
 
     const handleMockLogin = () => {
         router.replace('/(tabs)/products');
@@ -24,27 +26,27 @@ export default function LoginScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const generateStyles = (colors) => ({
     container: { 
         flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: colors.background,
         padding: 20
     },
     header: { 
         fontSize: 28, 
         fontWeight: 'bold',
-        color: '#333',
+        color: colors.textMain,
         marginBottom: 8
     },
     subHeader: {
         fontSize: 16,
-        color: '#666',
+        color: colors.textGrey,
         marginBottom: 40
     },
     primaryBtn: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primaryAccent, // Swapped standard blue for your app's green
         paddingVertical: 15,
         paddingHorizontal: 30,
         borderRadius: 10,
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     btnText: {
-        color: '#fff',
+        color: '#fff', // Keep white for contrast against the green button
         fontSize: 16,
         fontWeight: 'bold'
     },
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
     },
     secondaryBtnText: {
-        color: '#007AFF',
+        color: colors.textMain,
         fontSize: 14,
         fontWeight: '600'
     }

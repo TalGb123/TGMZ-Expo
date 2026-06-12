@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CategoryList from '../../components/category-list';
+import { useStyles, useAppTheme } from '../../components/theme-context';
 
-// lazy adding pics for now
 const hardwareCategories = [
     { name: "CPU", dbName: "CPU", img: "../../../assets/cpu.png" },
     { name: "CPU Cooler", dbName: "CPUCooler", img: "../../../assets/cooler.png" },
@@ -18,6 +18,10 @@ const hardwareCategories = [
 export default function ProductsScreen() {
     const router = useRouter();
     const { category } = useLocalSearchParams();
+    
+    // Bring in our global theme styles
+    const styles = useStyles(generateStyles);
+    const { isLandscape } = useAppTheme();
 
     const setCategory = (dbName) => {
         router.setParams({ category: dbName });
@@ -37,8 +41,8 @@ export default function ProductsScreen() {
                             <TouchableOpacity 
                                 key={idx} 
                                 style={styles.categoryBubble}
-                                onPress={() => setCategory(cat.dbName)}
                                 activeOpacity={0.7}
+                                onPress={() => setCategory(cat.dbName)}
                             >
                                 <Image 
                                     source={{ uri: cat.img }} 
@@ -60,7 +64,6 @@ export default function ProductsScreen() {
                             <Text style={styles.backBtnText}>← Back</Text>
                         </TouchableOpacity>
                     </View>
-   
                     <View style={styles.listWrapper}>
                         <CategoryList 
                             category={category} 
@@ -73,13 +76,13 @@ export default function ProductsScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const generateStyles = (colors, isLandscape, screenWidth) => ({
     container: {
         flex: 1,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: colors.background, // This fixes the white background behind the list!
     },
     content: {
-        padding: 20,
+        padding: isLandscape ? 40 : 20,
         paddingBottom: 40,
     },
     listViewWrapper: {
@@ -91,17 +94,17 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "center",
         marginBottom: 30,
-        color: "#333",
+        color: colors.textMain,
     },
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent: "space-between",
+        justifyContent: isLandscape ? "flex-start" : "space-between",
         gap: 15,
     },
     categoryBubble: {
-        width: "47%", 
-        backgroundColor: "#ffffff",
+        width: isLandscape ? (screenWidth - 125) / 4 : "47%", 
+        backgroundColor: colors.cardBackground,
         paddingVertical: 20,
         paddingHorizontal: 10,
         borderRadius: 15,
@@ -113,16 +116,18 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         marginBottom: 5,
+        borderWidth: 1,
+        borderColor: colors.borderColor,
     },
     bubbleImage: {
-        width: 55,
-        height: 55,
+        width: isLandscape ? 45 : 55,
+        height: isLandscape ? 45 : 55,
         marginBottom: 12,
     },
     bubbleText: {
         fontSize: 15,
         fontWeight: "600",
-        color: "#444",
+        color: colors.textMain,
         textAlign: "center",
     },
     headerRow: {
@@ -134,18 +139,20 @@ const styles = StyleSheet.create({
     activeCategoryTitle: {
         fontSize: 22,
         fontWeight: "bold",
-        color: "#333",
+        color: colors.textMain,
     },
     backBtn: {
         paddingVertical: 8,
         paddingHorizontal: 12,
-        backgroundColor: "#e0e0e0",
+        backgroundColor: colors.cardBackground,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: colors.borderColor,
     },
     backBtnText: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#333",
+        color: colors.textMain,
     },
     listWrapper: { 
         flex: 1, 

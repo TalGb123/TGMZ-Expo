@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { ServerContext } from './server-context.js';
+import { useStyles } from './theme-context';
 import { useRouter } from 'expo-router';
 
 export default function CategoryList({ category, onSelect }) {
+    const styles = useStyles(generateStyles);
+
     const router = useRouter();
     
     const { server } = useContext(ServerContext);
@@ -72,7 +75,7 @@ export default function CategoryList({ category, onSelect }) {
     );
 }
 
-const styles = StyleSheet.create({
+const generateStyles = (colors, isLandscape, screenWidth) => ({
     center: { 
         flex: 1, 
         justifyContent: 'center', 
@@ -80,12 +83,12 @@ const styles = StyleSheet.create({
         marginTop: 50
     },
     errorText: { 
-        color: 'red', 
+        color: colors.errorRed, 
         textAlign: 'center', 
         marginTop: 20 
     },
     emptyText: { 
-        color: '#888', 
+        color: colors.textGrey, 
         textAlign: 'center', 
         marginTop: 20, 
         fontSize: 16 
@@ -93,7 +96,7 @@ const styles = StyleSheet.create({
     listContainer: { paddingBottom: 20 },
     card: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        backgroundColor: colors.cardBackground,
         padding: 15,
         borderRadius: 12,
         marginBottom: 15,
@@ -102,6 +105,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: colors.borderColor, // Added so cards don't bleed into the background in dark mode
     },
     image: { 
         width: 80, 
@@ -115,23 +120,23 @@ const styles = StyleSheet.create({
     name: { 
         fontSize: 16, 
         fontWeight: '600', 
-        color: '#333', 
+        color: colors.textMain, 
         marginBottom: 5 
     },
     price: { 
         fontSize: 16, 
-        color: '#007AFF', 
+        color: colors.primaryAccent, // Swapped standard blue for your TGMZ green
         fontWeight: 'bold', 
         marginBottom: 10 
     },
     addBtn: { 
-        backgroundColor: '#007AFF', 
+        backgroundColor: colors.primaryAccent, // Swapped standard blue for your TGMZ green
         paddingVertical: 8, 
         borderRadius: 6, 
         alignItems: 'center' 
     },
     addBtnText: { 
-        color: '#fff', 
+        color: '#FFFFFF', // Kept white to provide strong contrast against the green button
         fontWeight: 'bold' 
     }
 });
