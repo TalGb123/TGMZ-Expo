@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; // Added for navigation
-import { getStyles, getThemeColors } from './AppStyle.js';
+import { useRouter } from 'expo-router';
+import { getStyles, getThemeColors } from '../../constants/AppStyle.js';
 
 const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors }) => {
   const getBorderColor = () => {
@@ -47,9 +47,8 @@ const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security
 let styles = {};
 
 export default function RegisterScreen() {
-  const router = useRouter(); // Initialize router
-  
-  // Notice the path change: '../assets/...' because we are inside the (auth) folder now
+  const router = useRouter();
+
   const [fontsLoaded, fontError] = useFonts({
   'Jomhuria': require('../../../assets/fonts/Jomhuria-Regular.ttf'),
   });
@@ -103,7 +102,6 @@ export default function RegisterScreen() {
 
   const handleRegister = () => {
     if (isFormComplete) {
-      // Mock registration success - bypass to store like the login page does
       router.replace('/(tabs)/products');
     }
   };

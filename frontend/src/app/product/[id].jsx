@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ServerContext } from '../../components/server-context';
 import { useStyles, useAppTheme } from '../../components/theme-context';

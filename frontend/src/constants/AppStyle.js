@@ -33,7 +33,6 @@ export const getStyles = (theme, isLandscape) => {
       paddingBottom: isLandscape ? 10 : 20,
     },
     
-    // Logo/Title Section
     headerContainer: {
       alignItems: 'center',
       marginBottom: isLandscape ? 5 : 10, 
@@ -46,7 +45,6 @@ export const getStyles = (theme, isLandscape) => {
       paddingTop: 10,
     },
 
-    // Form Layout
     formContainer: {
       flex: 1,
     },
@@ -64,7 +62,6 @@ export const getStyles = (theme, isLandscape) => {
       justifyContent: 'center',
     },
 
-    // Input Styles
     inputContainer: {
       marginBottom: isLandscape ? 6 : 12,
     },
@@ -102,7 +99,6 @@ export const getStyles = (theme, isLandscape) => {
       marginLeft: 10,
     },
 
-    // Buttons
     registerButton: {
       backgroundColor: colors.inputBackground,
       padding: isLandscape ? 12 : 18, 
