@@ -1,40 +1,176 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { ServerContext } from './server-context.js';
 import { useStyles } from './theme-context';
 import { useRouter } from 'expo-router';
 
+const normalizePart = (p) => {
+    const clone = { ...p };
+    if (clone.category === "Memory" && Array.isArray(clone.speed)) {
+        clone.speedMain = clone.speed.length > 1 ? clone.speed[1] : clone.speed[0];
+    }
+    if (clone.category === "Memory" && clone.speedMain) {
+        if (clone.speedMain >= 4800) clone.ddrGen = "DDR5";
+        else if (clone.speedMain >= 2400) clone.ddrGen = "DDR4";
+        else clone.ddrGen = "DDR3";
+    }
+    if (clone.category === "Memory" && Array.isArray(clone.modules) && clone.modules.length >= 2) {
+        const [count, size] = clone.modules;
+        clone.modulesLabel = `${count}x${size}`;
+    }
+    return clone;
+};
+
+const FILTERS = {
+    CPU: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "socket", type: "select", label: "Socket" },
+        { key: "supported_memory", type: "select", label: "Memory" },
+        { key: "has_apu", type: "select", label: "Has APU" },
+        { key: "tdp", type: "range", label: "TDP (W)" },
+        { key: "core_clock", type: "range", label: "Clock (GHz)" },
+    ],
+    CPUCooler: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "type", type: "select", label: "Type" },
+        { key: "radiator_size", type: "select", label: "Radiator Size (mm)" },
+        { key: "supported_sockets", type: "select", label: "Supported Sockets" },
+        { key: "height", type: "range", label: "Height (mm)" },
+    ],
+    Motherboard: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "socket", type: "select", label: "Socket" },
+        { key: "form_factor", type: "select", label: "Form Factor" },
+        { key: "memory_gen", type: "select", label: "Memory Generation" },
+        { key: "has_wifi_bluetooth", type: "select", label: "Bluetooth & Wifi" },
+    ],
+    Memory: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "ddrGen", type: "select", label: "DDR Generation" },
+        { key: "speedMain", type: "select", label: "Speed (MHz)" },
+        { key: "modulesLabel", type: "select", label: "Modules" },
+        { key: "cas_latency", type: "range", label: "CAS Latency" },
+    ],
+    Storage: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "capacity", type: "select", label: "Capacity (GB)" },
+        { key: "drive_type", type: "select", label: "Type" },
+        { key: "form_factor", type: "select", label: "Form Factor" },
+    ],
+    PowerSupply: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "wattage", type: "range", label: "Wattage (W)" },
+        { key: "efficiency", type: "select", label: "Efficiency" },
+        { key: "type", type: "select", label: "Type" },
+        { key: "modular", type: "select", label: "Modular" },
+    ],
+    VideoCard: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "chipset", type: "select", label: "Chipset" },
+        { key: "memory", type: "select", label: "Memory (GB)" },
+        { key: "tdp", type: "range", label: "TDP (W)" },
+        { key: "length", type: "range", label: "Length (mm)" },
+    ],
+    Case: [
+        { key: "brand", type: "select", label: "Brand" },
+        { key: "type", type: "select", label: "Type" },
+        { key: "supported_mobo_form_factors", type: "select", label: "Mobo Sizes" },
+        { key: "max_gpu_length", type: "range", label: "Max GPU Length (mm)" },
+        { key: "psu_form_factor", type: "select", label: "PSU Form Factor" },
+    ],
+};
+
 export default function CategoryList({ category, onSelect }) {
     const styles = useStyles(generateStyles);
-
     const router = useRouter();
-    
     const { server } = useContext(ServerContext);
+    
     const [parts, setParts] = useState([]);
+    const [globalOptions, setGlobalOptions] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [showFilters, setShowFilters] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [advFilters, setAdvFilters] = useState({ minPrice: "", maxPrice: "", values: {} });
+    const [sortBy, setSortBy] = useState('');
+
+    const filterDefs = FILTERS[category] || [];
+
     useEffect(() => {
-        const fetchParts = async () => {
-            setLoading(true);
+        const fetchInitialOptions = async () => {
             try {
                 const response = await server.get(`/products/category/${category}`);
-                setParts(response.data);
-                setError(null);
+                const normalized = response.data.map(normalizePart);
+                
+                const map = {};
+                filterDefs.forEach(f => {
+                    if (f.key === "has_apu" || f.key === "has_wifi_bluetooth") {
+                        map[f.key] = ["true", "false"];
+                    }
+                    else if (f.type === "select") {
+                        const valuesSet = new Set();
+                        normalized.forEach(p => {
+                            let val = p[f.key];
+                            if (val !== null && val !== undefined && val !== "") {
+                                if (Array.isArray(val)) val.forEach(v => valuesSet.add(v));
+                                else if (typeof val === "boolean") valuesSet.add(val.toString());
+                                else valuesSet.add(val);
+                            }
+                        });
+                        map[f.key] = Array.from(valuesSet).sort();
+                    }
+                });
+                setGlobalOptions(map);
             } catch (err) {
-                console.error("Fetch error:", err);
-                setError("Could not load parts from server. Check your connection.");
-            } finally {
-                setLoading(false);
+                console.error("Could not load initial options map", err);
             }
         };
-
-        if (category) fetchParts();
+        if (category) fetchInitialOptions();
     }, [category, server]);
 
-    if (loading) return <ActivityIndicator size="large" color="#007AFF" style={styles.center} />;
-    if (error) return <Text style={styles.errorText}>{error}</Text>;
-    if (parts.length === 0) return <Text style={styles.emptyText}>No parts found for {category}.</Text>;
+    const fetchParts = async () => {
+        setLoading(true);
+        try {
+            const params = {
+                name: searchQuery,
+                minPrice: advFilters.minPrice,
+                maxPrice: advFilters.maxPrice,
+                sortBy: sortBy
+            };
+            
+            for (const [key, value] of Object.entries(advFilters.values)) {
+                if (value) params[key] = value;
+            }
+
+            const response = await server.get(`/products/category/${category}`, { params });
+            const normalized = response.data.map(normalizePart);
+            setParts(normalized);
+            setError(null);
+        } catch (err) {
+            console.error("Fetch error:", err);
+            setError("Could not load parts from server. Check your connection.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (category) fetchParts();
+        }, 500);
+        return () => clearTimeout(delayDebounceFn);
+    }, [category, server, searchQuery, advFilters, sortBy]);
+
+    const handleSelectFilter = (key, val) => {
+        setAdvFilters(prev => {
+            const isSelected = prev.values[key] === val;
+            return {
+                ...prev,
+                values: { ...prev.values, [key]: isSelected ? "" : val }
+            };
+        });
+    };
 
     const renderPart = ({ item }) => (
         <View style={styles.card}>
@@ -54,10 +190,7 @@ export default function CategoryList({ category, onSelect }) {
                         <Text style={styles.addBtnText}>View Details</Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity 
-                        style={[styles.addBtn, { flex: 1 }]} 
-                        onPress={() => onSelect(item)}
-                    >
+                    <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
                         <Text style={styles.addBtnText}>Add to PC</Text>
                     </TouchableOpacity>
                 </View>
@@ -66,77 +199,172 @@ export default function CategoryList({ category, onSelect }) {
     );
 
     return (
-        <FlatList
-            data={parts}
-            keyExtractor={(item, index) => item._id || index.toString()}
-            renderItem={renderPart}
-            contentContainerStyle={styles.listContainer}
-        />
+        <View style={styles.container}>
+            <TouchableOpacity style={styles.filterToggleBtn} onPress={() => setShowFilters(!showFilters)}>
+                <Text style={styles.filterToggleText}>
+                    {showFilters ? "Hide Advanced Filters ⌃" : "Show Advanced Filters & Sorting ⌄"}
+                </Text>
+            </TouchableOpacity>
+
+            {showFilters && (
+                <View style={styles.filterPanel}>
+                    {/* Basic Name & Price */}
+                    <TextInput 
+                        style={styles.input} 
+                        placeholder="Search by name..." 
+                        placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    <View style={styles.row}>
+                        <TextInput 
+                            style={[styles.input, styles.halfInput]} 
+                            placeholder="Min Price (₪)" 
+                            placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
+                            keyboardType="numeric"
+                            value={advFilters.minPrice}
+                            onChangeText={text => setAdvFilters(prev => ({ ...prev, minPrice: text }))}
+                        />
+                        <TextInput 
+                            style={[styles.input, styles.halfInput]} 
+                            placeholder="Max Price (₪)" 
+                            placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
+                            keyboardType="numeric"
+                            value={advFilters.maxPrice}
+                            onChangeText={text => setAdvFilters(prev => ({ ...prev, maxPrice: text }))}
+                        />
+                    </View>
+
+                    {/* Sorting */}
+                    <View style={styles.row}>
+                        <TouchableOpacity style={[styles.sortBtn, sortBy === 'price-asc' && styles.activeSort]} onPress={() => setSortBy('price-asc')}>
+                            <Text style={[styles.sortText, sortBy === 'price-asc' && styles.activeSortText]}>Price: Low to High</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.sortBtn, sortBy === 'price-desc' && styles.activeSort]} onPress={() => setSortBy('price-desc')}>
+                            <Text style={[styles.sortText, sortBy === 'price-desc' && styles.activeSortText]}>Price: High to Low</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.divider} />
+
+                    {/* DYNAMIC CATEGORY FILTERS */}
+                    <ScrollView style={{ maxHeight: 250 }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                        {filterDefs.map(f => {
+                            if (f.type === "range") {
+                                return (
+                                    <View key={f.key} style={styles.filterSection}>
+                                        <Text style={styles.filterLabel}>{f.label}</Text>
+                                        <View style={styles.row}>
+                                            <TextInput
+                                                style={[styles.input, styles.halfInput, { marginBottom: 0 }]}
+                                                placeholder="Min"
+                                                keyboardType="numeric"
+                                                placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
+                                                value={advFilters.values[`${f.key}Min`] || ""}
+                                                onChangeText={val => setAdvFilters(prev => ({ ...prev, values: { ...prev.values, [`${f.key}Min`]: val } }))}
+                                            />
+                                            <TextInput
+                                                style={[styles.input, styles.halfInput, { marginBottom: 0 }]}
+                                                placeholder="Max"
+                                                keyboardType="numeric"
+                                                placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
+                                                value={advFilters.values[`${f.key}Max`] || ""}
+                                                onChangeText={val => setAdvFilters(prev => ({ ...prev, values: { ...prev.values, [`${f.key}Max`]: val } }))}
+                                            />
+                                        </View>
+                                    </View>
+                                );
+                            } else if (f.type === "select") {
+                                return (
+                                    <View key={f.key} style={styles.filterSection}>
+                                        <Text style={styles.filterLabel}>{f.label}</Text>
+                                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+                                            {(globalOptions[f.key] || []).map(opt => {
+                                                const isActive = advFilters.values[f.key] === opt.toString();
+                                                return (
+                                                    <TouchableOpacity 
+                                                        key={opt} 
+                                                        style={[styles.chip, isActive && styles.activeChip]}
+                                                        onPress={() => handleSelectFilter(f.key, opt.toString())}
+                                                    >
+                                                        <Text style={[styles.chipText, isActive && styles.activeChipText]}>
+                                                            {opt}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </ScrollView>
+                                    </View>
+                                );
+                            }
+                            return null;
+                        })}
+                    </ScrollView>
+
+                    <TouchableOpacity 
+                        style={styles.clearBtn} 
+                        onPress={() => {
+                            setSearchQuery('');
+                            setSortBy('');
+                            setAdvFilters({ minPrice: "", maxPrice: "", values: {} });
+                        }}
+                    >
+                        <Text style={styles.clearBtnText}>Clear All Filters</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* List Rendering */}
+            {loading ? (
+                <ActivityIndicator size="large" color="#007AFF" style={styles.center} />
+            ) : error ? (
+                <Text style={styles.errorText}>{error}</Text>
+            ) : parts.length === 0 ? (
+                <Text style={styles.emptyText}>No parts found matching these filters.</Text>
+            ) : (
+                <FlatList
+                    data={parts}
+                    keyExtractor={(item, index) => item._id || index.toString()}
+                    renderItem={renderPart}
+                    contentContainerStyle={styles.listContainer}
+                    showsVerticalScrollIndicator={false}
+                />
+            )}
+        </View>
     );
 }
 
 const generateStyles = (colors, isLandscape, screenWidth) => ({
-    center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 50
-    },
-    errorText: { 
-        color: colors.errorRed, 
-        textAlign: 'center', 
-        marginTop: 20 
-    },
-    emptyText: { 
-        color: colors.textGrey, 
-        textAlign: 'center', 
-        marginTop: 20, 
-        fontSize: 16 
-    },
+    container: { flex: 1 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
+    errorText: { color: colors.errorRed || 'red', textAlign: 'center', marginTop: 20 },
+    emptyText: { color: colors.textGrey || '#888', textAlign: 'center', marginTop: 20, fontSize: 16 },
     listContainer: { paddingBottom: 20 },
-    card: {
-        flexDirection: 'row',
-        backgroundColor: colors.cardBackground,
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 15,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 2,
-        borderWidth: 1,
-        borderColor: colors.borderColor, // Added so cards don't bleed into the background in dark mode
-    },
-    image: { 
-        width: 80, 
-        height: 80, 
-        marginRight: 15 
-    },
-    details: { 
-        flex: 1, 
-        justifyContent: 'center' 
-    },
-    name: { 
-        fontSize: 16, 
-        fontWeight: '600', 
-        color: colors.textMain, 
-        marginBottom: 5 
-    },
-    price: { 
-        fontSize: 16, 
-        color: colors.primaryAccent, // Swapped standard blue for your TGMZ green
-        fontWeight: 'bold', 
-        marginBottom: 10 
-    },
-    addBtn: { 
-        backgroundColor: colors.primaryAccent, // Swapped standard blue for your TGMZ green
-        paddingVertical: 8, 
-        borderRadius: 6, 
-        alignItems: 'center' 
-    },
-    addBtnText: { 
-        color: '#FFFFFF', // Kept white to provide strong contrast against the green button
-        fontWeight: 'bold' 
-    }
+    filterToggleBtn: { backgroundColor: colors.cardBackground, padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: colors.borderColor },
+    filterToggleText: { fontWeight: 'bold', color: colors.textMain },
+    filterPanel: { backgroundColor: colors.cardBackground, padding: 15, borderRadius: 12, marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: colors.borderColor },
+    input: { borderWidth: 1, borderColor: colors.borderColor, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: colors.background, color: colors.textMain },
+    row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+    halfInput: { width: '48%', marginBottom: 0 },
+    divider: { height: 1, backgroundColor: colors.borderColor, marginVertical: 15 },
+    sortBtn: { width: '48%', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: colors.primaryAccent || '#007AFF', alignItems: 'center' },
+    activeSort: { backgroundColor: colors.primaryAccent || '#007AFF' },
+    sortText: { color: colors.primaryAccent || '#007AFF', fontWeight: '600', fontSize: 12 },
+    activeSortText: { color: '#fff' },
+    filterSection: { marginBottom: 15 },
+    filterLabel: { fontSize: 14, fontWeight: 'bold', color: colors.textMain, marginBottom: 8 },
+    chipScroll: { flexDirection: 'row' },
+    chip: { paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.borderColor, marginRight: 8 },
+    activeChip: { backgroundColor: colors.primaryAccent, borderColor: colors.primaryAccent },
+    chipText: { fontSize: 13, color: colors.textMain },
+    activeChipText: { color: '#fff', fontWeight: 'bold' },
+    clearBtn: { backgroundColor: colors.errorRed || '#dc3545', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 15 },
+    clearBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+    card: { flexDirection: 'row', backgroundColor: colors.cardBackground, padding: 15, borderRadius: 12, marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: colors.borderColor },
+    image: { width: 80, height: 80, marginRight: 15 },
+    details: { flex: 1, justifyContent: 'center' },
+    name: { fontSize: 15, fontWeight: '600', color: colors.textMain, marginBottom: 5 },
+    price: { fontSize: 16, color: colors.primaryAccent, fontWeight: 'bold', marginBottom: 10 },
+    addBtn: { backgroundColor: colors.primaryAccent, paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
+    addBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }
 });

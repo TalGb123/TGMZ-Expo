@@ -47,7 +47,6 @@ export default function ProductDetailsScreen() {
     if (!product) return <Text style={styles.errorText}>Product not found.</Text>;
 
     const renderDynamicSpecs = () => {
-        // We pass the generated 'styles' object to SpecRow so it inherits the theme colors
         const commonProps = { styles }; 
         switch (product.category) {
             case 'CPU':
@@ -58,9 +57,90 @@ export default function ProductDetailsScreen() {
                         <SpecRow label="Core Clock" value={`${product.core_clock} GHz`} {...commonProps} />
                         <SpecRow label="Boost Clock" value={product.boost_clock ? `${product.boost_clock} GHz` : null} {...commonProps} />
                         <SpecRow label="TDP" value={`${product.tdp} W`} {...commonProps} />
+                        <SpecRow label="Includes APU" value={product.has_apu} {...commonProps} />
+                        <SpecRow label="Supported Memory" value={product.supported_memory} {...commonProps} />
                     </>
                 );
-            // ... (keep the rest of your cases identical, just append {...commonProps} to each SpecRow)
+            case 'CPUCooler':
+                return (
+                    <>
+                        <SpecRow label="Type" value={product.type} {...commonProps} />
+                        <SpecRow label="Supported Sockets" value={product.supported_sockets} {...commonProps} />
+                        <SpecRow label="Height" value={product.height ? `${product.height} mm` : null} {...commonProps} />
+                        <SpecRow label="Radiator Size" value={product.radiator_size ? `${product.radiator_size} mm` : 'N/A (Air)'} {...commonProps} />
+                        <SpecRow label="Noise Level" value={product.noise_level ? `${product.noise_level} dB` : null} {...commonProps} />
+                        <SpecRow label="Max Cooling (TDP)" value={`${product.max_tdp_cooling} W`} {...commonProps} />
+                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                    </>
+                );
+            case 'Motherboard':
+                return (
+                    <>
+                        <SpecRow label="Socket" value={product.socket} {...commonProps} />
+                        <SpecRow label="Form Factor" value={product.form_factor} {...commonProps} />
+                        <SpecRow label="Memory Gen" value={product.memory_gen} {...commonProps} />
+                        <SpecRow label="Memory Slots" value={product.memory_slots} {...commonProps} />
+                        <SpecRow label="M.2 Slots" value={product.m2_slots} {...commonProps} />
+                        <SpecRow label="WiFi & Bluetooth" value={product.has_wifi_bluetooth} {...commonProps} />
+                        <SpecRow label="VRM Tier" value={`${product.vrm_tier}/5`} {...commonProps} />
+                        <SpecRow label="Rear Connections" value={product.connections} {...commonProps} />
+                    </>
+                );
+            case 'Memory':
+                const gen = product.speed?.[0] || '';
+                const mhz = product.speed?.[1] || '';
+                const cl = product.speed?.[2] || '';
+                const sticks = product.modules?.[0] || '';
+                const capacity = product.modules?.[1] || '';
+                return (
+                    <>
+                        <SpecRow label="Configuration" value={`${sticks} x ${capacity}GB`} {...commonProps} />
+                        <SpecRow label="Speed" value={`${gen} ${mhz} MHz`} {...commonProps} />
+                        <SpecRow label="CAS Latency" value={`CL${cl}`} {...commonProps} />
+                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                    </>
+                );
+            case 'Storage':
+                return (
+                    <>
+                        <SpecRow label="Capacity" value={`${product.capacity} GB`} {...commonProps} />
+                        <SpecRow label="Drive Type" value={product.type} {...commonProps} />
+                        <SpecRow label="Form Factor" value={product.form_factor} {...commonProps} />
+                    </>
+                );
+            case 'VideoCard':
+                return (
+                    <>
+                        <SpecRow label="Chipset" value={product.chipset} {...commonProps} />
+                        <SpecRow label="VRAM" value={`${product.memory} GB`} {...commonProps} />
+                        <SpecRow label="Length" value={`${product.length} mm`} {...commonProps} />
+                        <SpecRow label="Slots Required" value={product.slots_required} {...commonProps} />
+                        <SpecRow label="TDP" value={`${product.tdp} W`} {...commonProps} />
+                        <SpecRow label="Recommended PSU" value={`${product.recommended_psu_wattage} W`} {...commonProps} />
+                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                    </>
+                );
+            case 'Case':
+                return (
+                    <>
+                        <SpecRow label="Type" value={product.type} {...commonProps} />
+                        <SpecRow label="Max GPU Length" value={`${product.max_gpu_length} mm`} {...commonProps} />
+                        <SpecRow label="Max Cooler Height" value={`${product.max_cpu_cooler_height} mm`} {...commonProps} />
+                        <SpecRow label="PSU Form Factor" value={product.psu_form_factor} {...commonProps} />
+                        <SpecRow label="Supported Radiators" value={product.supported_radiators?.map(r => `${r}mm`)} {...commonProps} />
+                        <SpecRow label="Side Panel" value={product.sidepanel_material} {...commonProps} />
+                    </>
+                );
+            case 'PowerSupply':
+                return (
+                    <>
+                        <SpecRow label="Wattage" value={`${product.wattage} W`} {...commonProps} />
+                        <SpecRow label="Type" value={product.type} {...commonProps} />
+                        <SpecRow label="Efficiency" value={product.efficiency} {...commonProps} />
+                        <SpecRow label="Modular" value={product.modular} {...commonProps} />
+                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                    </>
+                );
             default:
                 return <Text style={{ color: colors.textGrey, marginTop: 10 }}>No extended specifications available.</Text>;
         }
@@ -74,7 +154,7 @@ export default function ProductDetailsScreen() {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.layoutWrapper}>
                     <View style={styles.imageColumn}>
                         <Image 
