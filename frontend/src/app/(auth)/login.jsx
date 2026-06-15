@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { useStyles } from '../../components/theme-context';
+import { useStyles } from '../../context/theme-context.js';
 
 export default function LoginScreen() {
     const router = useRouter();

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ServerContext } from '../../components/server-context';
-import { useStyles, useAppTheme } from '../../components/theme-context';
+import { ServerContext } from '../../context/server-context.js';
+import { useStyles, useAppTheme } from '../../context/theme-context.js';
 
 const SpecRow = ({ label, value, styles }) => {
     if (value === undefined || value === null || value === '') return null;

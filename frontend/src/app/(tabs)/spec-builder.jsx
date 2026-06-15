@@ -2,10 +2,10 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Modal } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from "expo-router";
-import CategoryList from "../../components/category-list";
-import Questionnaire from "../../components/questionnaire"; 
-import { ServerContext } from "../../components/server-context";
-import { useStyles, useAppTheme } from "../../components/theme-context";
+import CategoryList from "../../components/category-list.jsx";
+import Questionnaire from "../../components/questionnaire.jsx"; 
+import { ServerContext } from "../../context/server-context.js";
+import { useStyles, useAppTheme } from "../../context/theme-context.js";
 
 const hwList = [
     { id: 1, name: "CPU", dbName: "CPU", schemaKey: "cpu" },
@@ -13,7 +13,7 @@ const hwList = [
     { id: 3, name: "Motherboard", dbName: "Motherboard", schemaKey: "motherboard" },
     { id: 4, name: "RAM", dbName: "Memory", schemaKey: "ram" },
     { id: 5, name: "Storage", dbName: "Storage", schemaKey: "storage" },
-    { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "psu" },
+    { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "power_supply" },
     { id: 7, name: "GPU", dbName: "VideoCard", schemaKey: "gpu" },
     { id: 8, name: "Case", dbName: "Case", schemaKey: "case" }
 ];
@@ -31,6 +31,9 @@ export default function SpecBuilderScreen() {
     const [searchId, setSearchId] = useState("");
     const [msg, setMsg] = useState("");
     const [isQuestionnaireActive, setIsQuestionnaireActive] = useState(false);
+
+    const [buildReasoning, setBuildReasoning] = useState("");
+    const [isReasoningModalOpen, setIsReasoningModalOpen] = useState(false);
 
     useEffect(() => {
         const editId = params.editBuildId;
@@ -76,6 +79,7 @@ export default function SpecBuilderScreen() {
         });
 
         setSelections(newSelections);
+        setBuildReasoning(generatedData.reasoning || "");
         setMsg("✅ Auto-build loaded successfully!");
         setIsQuestionnaireActive(false);
     };
@@ -197,9 +201,20 @@ export default function SpecBuilderScreen() {
 
             <View style={styles.footer}>
                 <Text style={styles.totalText}>Total: ₪{totalPrice}</Text>
-                <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                    <Text style={styles.saveBtnText}>💾 Save This Build</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <TouchableOpacity style={[styles.saveBtn, { flex: 1 }]} onPress={handleSave}>
+                        <Text style={styles.saveBtnText}>💾 Save Build</Text>
+                    </TouchableOpacity>
+
+                    {buildReasoning ? (
+                        <TouchableOpacity 
+                            style={[styles.saveBtn, { flex: 1, backgroundColor: colors.primaryAccent }]} 
+                            onPress={() => setIsReasoningModalOpen(true)}
+                        >
+                            <Text style={[styles.saveBtnText, { color: '#fff' }]}>🤖 AI Reasoning</Text>
+                        </TouchableOpacity>
+                    ) : null}
+                </View>
             </View>
 
             <Modal 
@@ -247,6 +262,29 @@ export default function SpecBuilderScreen() {
                                 onBuildGenerated={handleGeneratedBuild} 
                             />
                         )}
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal 
+                visible={isReasoningModalOpen} 
+                animationType="fade" 
+                transparent={true}
+                onRequestClose={() => setIsReasoningModalOpen(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { height: '60%' }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>🤖 AI Build Reasoning</Text>
+                            <TouchableOpacity onPress={() => setIsReasoningModalOpen(false)}>
+                                <Text style={styles.closeModalText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={{ fontSize: 16, color: colors.textMain, lineHeight: 24 }}>
+                                {buildReasoning}
+                            </Text>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>

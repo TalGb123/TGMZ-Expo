@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { useStyles } from '../../components/theme-context';
+import { useStyles } from '../../context/theme-context.js';
 
 export default function ProfileScreen() {
     const styles = useStyles(generateStyles);

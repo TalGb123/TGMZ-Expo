@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { ServerContext } from './server-context.js';
-import { useStyles } from './theme-context';
+import { ServerContext } from '../context/server-context.js';
+import { useStyles } from '../context/theme-context.js';
 import { useRouter } from 'expo-router';
 
 const normalizePart = (p) => {
