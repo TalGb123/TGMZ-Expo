@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Image, BackHandler } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import CategoryList from '../../components/category-list';
 import { useStyles, useAppTheme } from '../../components/theme-context';
@@ -18,18 +18,25 @@ const hardwareCategories = [
 export default function ProductsScreen() {
     const router = useRouter();
     const { category } = useLocalSearchParams();
-    
-    // Bring in our global theme styles
     const styles = useStyles(generateStyles);
     const { isLandscape } = useAppTheme();
-
     const setCategory = (dbName) => {
         router.setParams({ category: dbName });
     };
-
     const clearCategory = () => {
         router.setParams({ category: "" });
     };
+    useEffect(() => {
+        const onHardwareBackPress = () => {
+            if (category) {
+                clearCategory();
+                return true; 
+            }
+            return false; 
+        };
+        const backSubscription = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        return () => backSubscription.remove();
+    }, [category]);
 
     return (
         <View style={styles.container}>

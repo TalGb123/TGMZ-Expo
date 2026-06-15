@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity, SafeAreaView, BackHandler } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ServerContext } from '../../components/server-context';
 import { useStyles, useAppTheme } from '../../components/theme-context';
@@ -42,6 +42,15 @@ export default function ProductDetailsScreen() {
         };
         fetchProduct();
     }, [id]);
+
+    useEffect(() => {
+        const onHardwareBackPress = () => {
+            router.back();
+            return true;
+        };
+        const backSubscription = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        return () => backSubscription.remove();
+    }, [router]);
 
     if (loading) return <ActivityIndicator size="large" color={colors.primaryAccent} style={styles.center} />;
     if (!product) return <Text style={styles.errorText}>Product not found.</Text>;

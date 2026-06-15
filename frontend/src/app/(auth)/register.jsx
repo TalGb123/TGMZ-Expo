@@ -1,30 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { 
   Text, TextInput, View, KeyboardAvoidingView, Platform, 
   TouchableWithoutFeedback, Keyboard, Pressable, 
-  useWindowDimensions, useColorScheme, ScrollView 
+  ScrollView, ActivityIndicator
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; // Added for navigation
-import { getStyles, getThemeColors } from './AppStyle.js';
+import { useRouter } from 'expo-router';
+import { ServerContext } from '../../components/server-context';
+import { useStyles, useAppTheme } from '../../components/theme-context';
 
 const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors }) => {
   const getBorderColor = () => {
     if (validationState === 'valid') return colors.successGreen;
     if (validationState === 'invalid') return colors.errorRed;
-    return colors.inputBorder;
+    return colors.borderColor;
   };
 
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputWrapper, { borderColor: getBorderColor() }]}>
+      <View style={[styles.inputWrapper, { borderColor: getBorderColor(), backgroundColor: colors.inputBackground }]}>
         {leftIcon && <MaterialCommunityIcons name={leftIcon} size={20} color={colors.textGrey} style={{ marginRight: 10 }}/>}
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.textMain }]}
           placeholder={placeholder}
           placeholderTextColor={colors.textGrey}
           value={value}
@@ -47,45 +48,61 @@ const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security
 let styles = {};
 
 export default function RegisterScreen() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
+  const { server } = useContext(ServerContext);
   
-  // Notice the path change: '../assets/...' because we are inside the (auth) folder now
   const [fontsLoaded, fontError] = useFonts({
-  'Jomhuria': require('../../../assets/fonts/Jomhuria-Regular.ttf'),
+    'Jomhuria': require('../../../assets/fonts/Jomhuria-Regular.ttf'),
   });
 
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-  const systemTheme = useColorScheme(); 
-  const theme = systemTheme || 'light'; 
-  
-  styles = getStyles(theme, isLandscape);
-  const colors = getThemeColors(theme);
+  styles = useStyles(generateStyles);
+  const { isLandscape, colors, theme } = useAppTheme();
 
   const [birthday, setBirthday] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const [values, setValues] = useState({ firstName: "", lastName: "", email: "", phone: "", password: "" });
-  const [validation, setValidation] = useState({ firstName: null, lastName: null, email: null, phone: null, password: null, birthday: null });
+  const [values, setValues] = useState({ id: "", name: "", email: "", phone: "", password: "" });
+  const [validation, setValidation] = useState({ id: null, name: null, email: null, phone: null, password: null, birthday: null });
+  
+  const [loading, setLoading] = useState(false);
+  const [serverMsg, setServerMsg] = useState({ text: "", type: "" });
 
   if (!fontsLoaded && !fontError) return null;  
 
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() - 18);
 
+  const isValidIsraeliID = (id) => {
+    let strId = String(id).trim();
+    if (strId.length > 9 || strId.length < 5) return false;
+    strId = strId.padStart(9, '0'); 
+    
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        let num = Number(strId[i]);
+        let step = num * ((i % 2) + 1);
+        if (step > 9) step -= 9;
+        sum += step;
+    }
+    return sum % 10 === 0;
+  };
+
   const handleValidation = (field, value) => {
     let isValid = false;
     switch (field) {
-      case 'firstName':
-      case 'lastName':
-        isValid = value.length >= 2 && /^[a-zA-Z]+$/.test(value);
+      case 'id':
+        isValid = /^\d+$/.test(value) && isValidIsraeliID(value);
+        break;
+      case 'name':
+        isValid = value.trim().length >= 2;
         break;
       case 'email':
-        isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+        isValid = /^[a-zA-Z0-9._%+-]+@(walla|gmail)\.(com|co\.il)$/.test(value);
         break;
       case 'phone':
-        isValid = /^\d{10}$/.test(value);
+        const cleanPhone = value.replace(/-/g, "");
+        isValid = /^05\d{8}$/.test(cleanPhone);
         break;
       case 'birthday':
         const today = new Date();
@@ -93,7 +110,7 @@ export default function RegisterScreen() {
         isValid = age > 21 || (age === 21 && today < new Date(value.getFullYear() + 21, value.getMonth(), value.getDate()));
         break;
       case 'password':
-        isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{10,}$/.test(value);
+        isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value);
         break;
     }
     setValidation(prev => ({ ...prev, [field]: value.length === 0 ? null : (isValid ? 'valid' : 'invalid') }));
@@ -101,19 +118,46 @@ export default function RegisterScreen() {
 
   const isFormComplete = Object.values(validation).every(val => val === 'valid');
 
-  const handleRegister = () => {
-    if (isFormComplete) {
-      // Mock registration success - bypass to store like the login page does
-      router.replace('/(tabs)/products');
+  const handleRegister = async () => {
+    setServerMsg({ text: "", type: "" });
+    if (!isFormComplete) return;
+
+    setLoading(true);
+    
+    // Format date properly before sending
+    const formattedBirthday = birthday.toISOString().split('T')[0];
+
+    try {
+        const response = await server.post('/users/register', {
+            id: values.id, 
+            name: values.name, 
+            email: values.email, 
+            phone: values.phone, 
+            birthday: formattedBirthday, 
+            password: values.password
+        });
+        
+        setServerMsg({ text: "Registration Successful! Redirecting...", type: "success" });
+        setTimeout(() => {
+            router.replace('/(auth)/login');
+        }, 2000);
+    } catch (error) {
+        console.error('Error registering:', error);
+        if (error.response && error.response.status === 409) {
+            setServerMsg({ text: "User ID already exists.", type: "error" });
+        } else {
+            setServerMsg({ text: "Registration Failed. Try again.", type: "error" });
+        }
+        setLoading(false);
     }
   };
 
   const leftSideFields = (
     <>
-      <CustomInput label="First Name" placeholder="Sarah" value={values.firstName} onChangeText={(text) => setValues({ ...values, firstName: text })} onBlur={() => handleValidation('firstName', values.firstName)} validationState={validation.firstName} errorMessage="Must be at least 2 characters and letters only." leftIcon="account-outline" colors={colors} />
-      <CustomInput label="Last Name" placeholder="Smith" value={values.lastName} onChangeText={(text) => setValues({ ...values, lastName: text })} onBlur={() => handleValidation('lastName', values.lastName)} validationState={validation.lastName} errorMessage="Must be at least 2 characters and letters only." leftIcon="account-outline" colors={colors} />
-      <CustomInput label="Email Address" placeholder="sarah.smith@example.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage="Enter a valid email address." leftIcon="email-outline" keyboardType="email-address" colors={colors} />
-      <CustomInput label="Phone Number" placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage="Must be exactly 10 digits." leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} />
+      <CustomInput label="ID (Teudat Zehut)" placeholder="123456789" value={values.id} onChangeText={(text) => setValues({ ...values, id: text })} onBlur={() => handleValidation('id', values.id)} validationState={validation.id} errorMessage="Invalid Israeli ID." leftIcon="card-account-details-outline" keyboardType="numeric" colors={colors} />
+      <CustomInput label="Full Name" placeholder="Sarah Smith" value={values.name} onChangeText={(text) => setValues({ ...values, name: text })} onBlur={() => handleValidation('name', values.name)} validationState={validation.name} errorMessage="Must be at least 2 characters." leftIcon="account-outline" colors={colors} />
+      <CustomInput label="Email Address" placeholder="sarah@gmail.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage="Must be a Gmail or Walla address." leftIcon="email-outline" keyboardType="email-address" colors={colors} />
+      <CustomInput label="Phone Number" placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage="Must start with 05 and contain 10 digits." leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} />
     </>
   );
 
@@ -122,7 +166,7 @@ export default function RegisterScreen() {
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Date of Birth</Text>
         <Pressable 
-          style={[ styles.inputWrapper, { borderColor: validation.birthday === 'valid' ? colors.successGreen : validation.birthday === 'invalid' ? colors.errorRed : colors.inputBorder } ]} 
+          style={[ styles.inputWrapper, { borderColor: validation.birthday === 'valid' ? colors.successGreen : validation.birthday === 'invalid' ? colors.errorRed : colors.borderColor, backgroundColor: colors.inputBackground } ]} 
           onPress={() => setShowDatePicker(true)}
         >
           <MaterialCommunityIcons name="balloon" size={20} color={colors.textGrey} style={{ marginRight: 20 }}/>
@@ -143,14 +187,27 @@ export default function RegisterScreen() {
         )}
       </View>
 
-      <CustomInput label="Password" leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage="Must include 8+ chars, a number, and uppercase letter." security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} />
+      <CustomInput label="Password" leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage="8+ chars, uppercase, lowercase, number & symbol." security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} />
+
+      {serverMsg.text ? (
+        <Text style={[styles.serverMessage, { color: serverMsg.type === 'success' ? colors.successGreen : colors.errorRed }]}>
+            {serverMsg.text}
+        </Text>
+      ) : null}
 
       <Pressable 
         style={[styles.registerButton, isFormComplete ? styles.registerButtonActive : null]}
         onPress={handleRegister}
+        disabled={loading || !isFormComplete}
       >
-        <Text style={[styles.registerButtonText, isFormComplete && {color: '#FFFFFF'}]}>SIGN UP</Text>
-        <Text style={[styles.registerButtonSubtext, isFormComplete && {color: '#FFFFFF'}]}>{isFormComplete ? "Ready" : "Incomplete"}</Text>
+        {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+        ) : (
+            <>
+                <Text style={[styles.registerButtonText, isFormComplete && {color: '#FFFFFF'}]}>SIGN UP</Text>
+                <Text style={[styles.registerButtonSubtext, isFormComplete && {color: '#FFFFFF'}]}>{isFormComplete ? "Ready" : "Incomplete"}</Text>
+            </>
+        )}
       </Pressable>
     </>
   );
@@ -184,3 +241,106 @@ export default function RegisterScreen() {
     </View>
   );
 }
+
+const generateStyles = (colors, isLandscape) => ({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    keyboardAvoiding: {
+      flex: 1,
+    },
+    mainContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+      paddingHorizontal: 24,
+      paddingTop: isLandscape ? 10 : 20, 
+      paddingBottom: isLandscape ? 10 : 20,
+    },
+    headerContainer: {
+      alignItems: 'center',
+      marginBottom: isLandscape ? 5 : 10, 
+    },
+    mainTitle: {
+      fontFamily: 'Jomhuria', 
+      fontSize: isLandscape ? 40 : 50, 
+      color: colors.primaryAccent,
+      textAlign: 'center',
+      paddingTop: 5,
+    },
+    formContainer: {
+      flex: 1,
+    },
+    landscapeRow: {
+      flex: 1,
+      flexDirection: 'row',
+      gap: 20, 
+    },
+    landscapeColumn: {
+      flex: 1,
+      justifyContent: 'flex-start',
+    },
+    portraitScroll: {
+      flexGrow: 1,
+      justifyContent: 'center',
+    },
+    inputContainer: {
+      marginBottom: isLandscape ? 6 : 12,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.textMain,
+      marginBottom: 4,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderRadius: 24,
+      paddingHorizontal: 16,
+      height: isLandscape ? 40 : 45, 
+    },
+    input: {
+      flex: 1,
+      height: '100%',
+    },
+    errorText: {
+      color: colors.errorRed,
+      fontSize: 11,
+      marginTop: 4,
+      marginLeft: 10,
+    },
+    serverMessage: {
+      textAlign: 'center',
+      fontSize: 14,
+      fontWeight: '600',
+      marginTop: 10,
+    },
+    registerButton: {
+      backgroundColor: colors.cardBackground,
+      padding: isLandscape ? 12 : 18, 
+      borderRadius: 28,
+      alignItems: 'center',
+      marginTop: isLandscape ? 15 : 25, 
+      borderColor: colors.borderColor,
+      borderWidth: 1,
+    },
+    registerButtonActive: {
+      backgroundColor: colors.primaryAccent,
+      borderWidth: 0,
+    },
+    registerButtonText: {
+      color: colors.textMain,
+      fontWeight: 'bold',
+      fontSize: 18,
+    },
+    registerButtonSubtext: {
+      color: colors.textMain,
+      fontSize: 12,
+      opacity: 0.8,
+    },
+    dateValue: { 
+      flex: 1, 
+    },
+});
