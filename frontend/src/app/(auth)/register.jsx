@@ -9,8 +9,9 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { ServerContext } from '../../components/server-context';
-import { useStyles, useAppTheme } from '../../components/theme-context';
+import { ServerContext } from '../../context/server-context';
+import { useStyles, useAppTheme } from '../../context/theme-context';
+import { getStyles, getThemeColors } from '../../constants/AppStyle.js';
 
 const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors }) => {
   const getBorderColor = () => {

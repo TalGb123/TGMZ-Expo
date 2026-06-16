@@ -1,9 +1,9 @@
 import { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ServerContext } from '../../components/server-context';
-import { useStyles, useAppTheme } from '../../components/theme-context';
+import { ServerContext } from '../../context/server-context';
+import { Link, useRouter } from 'expo-router';
+import { useStyles, useAppTheme } from '../../context/theme-context.js';
 
 export default function LoginScreen() {
     const router = useRouter();

@@ -2,8 +2,8 @@ import { Tabs, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { useContext } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppTheme } from '../../components/theme-context';
-import { ServerContext } from '../../components/server-context';
+import { ServerContext } from '../../context/server-context';
+import { useAppTheme } from '../../context/theme-context.js';
 
 export default function TabsLayout() {
     const { colors } = useAppTheme();

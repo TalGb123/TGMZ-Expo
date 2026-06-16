@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image, BackHandler } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import CategoryList from '../../components/category-list';
-import { useStyles, useAppTheme } from '../../components/theme-context';
+import CategoryList from '../../components/category-list.jsx';
+import { useStyles, useAppTheme } from '../../context/theme-context.js';
 
 const hardwareCategories = [
     { name: "CPU", dbName: "CPU", img: "../../../assets/cpu.png" },

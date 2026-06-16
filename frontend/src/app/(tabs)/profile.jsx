@@ -7,10 +7,9 @@ import {
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ServerContext } from '../../components/server-context';
-import { useStyles, useAppTheme } from '../../components/theme-context';
+import { ServerContext } from '../../context/server-context';
+import { useStyles, useAppTheme } from '../../context/theme-context';
 import { generateProfileStyles } from './ProfileStyle';
-
 // Reusable Input Component for the Profile Form
 const ProfileInput = ({ label, value, onChangeText, placeholder, keyboardType, disabled, security, onToggleSecurity, colors, styles, errorMessage }) => (
     <View style={styles.inputContainer}>

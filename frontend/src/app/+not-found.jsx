@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import { useStyles } from '../components/theme-context';
+import { useStyles } from '../context/theme-context.js';
 
 export default function NotFound() {
     const router = useRouter();

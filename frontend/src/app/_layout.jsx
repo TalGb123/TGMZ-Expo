@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
-import { ServerProvider } from '../components/server-context.js';
-import { ThemeProvider } from '../components/theme-context.js';
+import { ServerProvider } from '../context/server-context.js';
+import { ThemeProvider } from '../context/theme-context.js';
 
 export default function RootLayout() {
     return (
