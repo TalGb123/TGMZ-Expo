@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOp
 import { ServerContext } from '../context/server-context.js';
 import { useStyles } from '../context/theme-context.js';
 import { useRouter } from 'expo-router';
+import { generateCategoryListStyles } from '../constants/CategoryListStyle.js';
 
 const normalizePart = (p) => {
     const clone = { ...p };
@@ -81,7 +82,7 @@ const FILTERS = {
 };
 
 export default function CategoryList({ category, onSelect }) {
-    const styles = useStyles(generateStyles);
+    const styles = useStyles(generateCategoryListStyles);
     const router = useRouter();
     const { server } = useContext(ServerContext);
     
@@ -333,38 +334,3 @@ export default function CategoryList({ category, onSelect }) {
         </View>
     );
 }
-
-const generateStyles = (colors, isLandscape, screenWidth) => ({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
-    errorText: { color: colors.errorRed || 'red', textAlign: 'center', marginTop: 20 },
-    emptyText: { color: colors.textGrey || '#888', textAlign: 'center', marginTop: 20, fontSize: 16 },
-    listContainer: { paddingBottom: 20 },
-    filterToggleBtn: { backgroundColor: colors.cardBackground, padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: colors.borderColor },
-    filterToggleText: { fontWeight: 'bold', color: colors.textMain },
-    filterPanel: { backgroundColor: colors.cardBackground, padding: 15, borderRadius: 12, marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: colors.borderColor },
-    input: { borderWidth: 1, borderColor: colors.borderColor, borderRadius: 8, padding: 10, marginBottom: 10, backgroundColor: colors.background, color: colors.textMain },
-    row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    halfInput: { width: '48%', marginBottom: 0 },
-    divider: { height: 1, backgroundColor: colors.borderColor, marginVertical: 15 },
-    sortBtn: { width: '48%', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: colors.primaryAccent || '#007AFF', alignItems: 'center' },
-    activeSort: { backgroundColor: colors.primaryAccent || '#007AFF' },
-    sortText: { color: colors.primaryAccent || '#007AFF', fontWeight: '600', fontSize: 12 },
-    activeSortText: { color: '#fff' },
-    filterSection: { marginBottom: 15 },
-    filterLabel: { fontSize: 14, fontWeight: 'bold', color: colors.textMain, marginBottom: 8 },
-    chipScroll: { flexDirection: 'row' },
-    chip: { paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.borderColor, marginRight: 8 },
-    activeChip: { backgroundColor: colors.primaryAccent, borderColor: colors.primaryAccent },
-    chipText: { fontSize: 13, color: colors.textMain },
-    activeChipText: { color: '#fff', fontWeight: 'bold' },
-    clearBtn: { backgroundColor: colors.errorRed || '#dc3545', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 15 },
-    clearBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-    card: { flexDirection: 'row', backgroundColor: colors.cardBackground, padding: 15, borderRadius: 12, marginBottom: 15, elevation: 2, borderWidth: 1, borderColor: colors.borderColor },
-    image: { width: 80, height: 80, marginRight: 15 },
-    details: { flex: 1, justifyContent: 'center' },
-    name: { fontSize: 15, fontWeight: '600', color: colors.textMain, marginBottom: 5 },
-    price: { fontSize: 16, color: colors.primaryAccent, fontWeight: 'bold', marginBottom: 10 },
-    addBtn: { backgroundColor: colors.primaryAccent, paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
-    addBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }
-});

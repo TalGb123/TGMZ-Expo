@@ -3,10 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import { buildFilter } from "../utils/build-filter.js";
 import { ServerContext } from "../context/server-context.js";
 import { useStyles, useAppTheme } from "../context/theme-context.js";
+import { generateQuestionnaireStyles } from '../constants/QuestionnaireStyle.js';
 
 export default function Questionnaire({ onClose, onBuildGenerated }) {
     const { server } = useContext(ServerContext);
-    const styles = useStyles(generateStyles);
+    const styles = useStyles(generateQuestionnaireStyles);
     const { colors } = useAppTheme();
 
     const [usage, setUsage] = useState([]);
@@ -246,73 +247,3 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
         </View>
     );
 }
-
-const generateStyles = (colors, isLandscape) => ({
-    container: { flex: 1, backgroundColor: colors.background },
-    
-    introText: { fontSize: 14, color: colors.textGrey, marginBottom: 15, fontStyle: 'italic' },
-    
-    stickyBudgetPanel: { 
-        backgroundColor: colors.cardBackground, 
-        padding: 15, 
-        borderRadius: 12, 
-        marginBottom: 15, 
-        borderWidth: 1, 
-        borderColor: colors.primaryAccent,
-        shadowColor: colors.primaryAccent,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2
-    },
-    budgetInput: { 
-        borderWidth: 1, 
-        borderColor: colors.borderColor, 
-        borderRadius: 8, 
-        padding: 12, 
-        fontSize: 18, 
-        color: colors.textMain,
-        backgroundColor: colors.background,
-        marginTop: 10
-    },
-
-    scrollArea: { flex: 1 },
-    scrollContent: { paddingBottom: 30 },
-
-    questionBlock: { marginBottom: 25 },
-    questionLabel: { fontSize: 16, fontWeight: 'bold', color: colors.textMain, marginBottom: 12 },
-    
-    subQuestionBlock: { 
-        backgroundColor: colors.cardBackground, 
-        padding: 15, 
-        borderRadius: 12, 
-        marginBottom: 20, 
-        borderLeftWidth: 3, 
-        borderLeftColor: colors.primaryAccent 
-    },
-    subQuestionLabel: { fontSize: 14, fontWeight: '600', color: colors.textMain, marginBottom: 10, marginTop: 5 },
-
-    chipGroup: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    chip: { 
-        backgroundColor: colors.cardBackground, 
-        borderWidth: 1, 
-        borderColor: colors.borderColor, 
-        paddingVertical: 10, 
-        paddingHorizontal: 16, 
-        borderRadius: 20 
-    },
-    activeChip: { backgroundColor: colors.primaryAccent, borderColor: colors.primaryAccent },
-    chipText: { color: colors.textMain, fontSize: 14, fontWeight: '500' },
-    activeChipText: { color: '#fff', fontWeight: 'bold' },
-
-    footer: { paddingTop: 15, borderTopWidth: 1, borderTopColor: colors.borderColor, marginTop: 10 },
-    generateBtn: { 
-        backgroundColor: colors.primaryAccent, 
-        paddingVertical: 16, 
-        borderRadius: 12, 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        flexDirection: 'row'
-    },
-    generateBtnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
-});

@@ -12,8 +12,9 @@ import { useRouter } from 'expo-router';
 import { ServerContext } from '../../context/server-context';
 import { useStyles, useAppTheme } from '../../context/theme-context';
 import { getStyles, getThemeColors } from '../../constants/AppStyle.js';
+import { generateRegisterStyles } from '../../constants/RegisterStyle.js';
 
-const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors }) => {
+const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors, styles }) => {
   const getBorderColor = () => {
     if (validationState === 'valid') return colors.successGreen;
     if (validationState === 'invalid') return colors.errorRed;
@@ -46,8 +47,6 @@ const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security
   );
 };
 
-let styles = {};
-
 export default function RegisterScreen() {
   const router = useRouter();
   const { server } = useContext(ServerContext);
@@ -56,7 +55,7 @@ export default function RegisterScreen() {
     'Jomhuria': require('../../../assets/fonts/Jomhuria-Regular.ttf'),
   });
 
-  styles = useStyles(generateStyles);
+  const styles = useStyles(generateRegisterStyles);
   const { isLandscape, colors, theme } = useAppTheme();
 
   const [birthday, setBirthday] = useState(null);
@@ -155,10 +154,10 @@ export default function RegisterScreen() {
 
   const leftSideFields = (
     <>
-      <CustomInput label="ID (Teudat Zehut)" placeholder="123456789" value={values.id} onChangeText={(text) => setValues({ ...values, id: text })} onBlur={() => handleValidation('id', values.id)} validationState={validation.id} errorMessage="Invalid Israeli ID." leftIcon="card-account-details-outline" keyboardType="numeric" colors={colors} />
-      <CustomInput label="Full Name" placeholder="Sarah Smith" value={values.name} onChangeText={(text) => setValues({ ...values, name: text })} onBlur={() => handleValidation('name', values.name)} validationState={validation.name} errorMessage="Must be at least 2 characters." leftIcon="account-outline" colors={colors} />
-      <CustomInput label="Email Address" placeholder="sarah@gmail.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage="Must be a Gmail or Walla address." leftIcon="email-outline" keyboardType="email-address" colors={colors} />
-      <CustomInput label="Phone Number" placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage="Must start with 05 and contain 10 digits." leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} />
+      <CustomInput label="ID (Teudat Zehut)" placeholder="123456789" value={values.id} onChangeText={(text) => setValues({ ...values, id: text })} onBlur={() => handleValidation('id', values.id)} validationState={validation.id} errorMessage="Invalid Israeli ID." leftIcon="card-account-details-outline" keyboardType="numeric" colors={colors} styles={styles} />
+      <CustomInput label="Full Name" placeholder="Sarah Smith" value={values.name} onChangeText={(text) => setValues({ ...values, name: text })} onBlur={() => handleValidation('name', values.name)} validationState={validation.name} errorMessage="Must be at least 2 characters." leftIcon="account-outline" colors={colors} styles={styles} />
+      <CustomInput label="Email Address" placeholder="sarah@gmail.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage="Must be a Gmail or Walla address." leftIcon="email-outline" keyboardType="email-address" colors={colors} styles={styles} />
+      <CustomInput label="Phone Number" placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage="Must start with 05 and contain 10 digits." leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} styles={styles} />
     </>
   );
 
@@ -188,7 +187,7 @@ export default function RegisterScreen() {
         )}
       </View>
 
-      <CustomInput label="Password" leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage="8+ chars, uppercase, lowercase, number & symbol." security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} />
+      <CustomInput label="Password" leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage="8+ chars, uppercase, lowercase, number & symbol." security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} styles={styles} />
 
       {serverMsg.text ? (
         <Text style={[styles.serverMessage, { color: serverMsg.type === 'success' ? colors.successGreen : colors.errorRed }]}>
@@ -242,106 +241,3 @@ export default function RegisterScreen() {
     </View>
   );
 }
-
-const generateStyles = (colors, isLandscape) => ({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    keyboardAvoiding: {
-      flex: 1,
-    },
-    mainContainer: {
-      flex: 1,
-      backgroundColor: colors.background,
-      paddingHorizontal: 24,
-      paddingTop: isLandscape ? 10 : 20, 
-      paddingBottom: isLandscape ? 10 : 20,
-    },
-    headerContainer: {
-      alignItems: 'center',
-      marginBottom: isLandscape ? 5 : 10, 
-    },
-    mainTitle: {
-      fontFamily: 'Jomhuria', 
-      fontSize: isLandscape ? 40 : 50, 
-      color: colors.primaryAccent,
-      textAlign: 'center',
-      paddingTop: 5,
-    },
-    formContainer: {
-      flex: 1,
-    },
-    landscapeRow: {
-      flex: 1,
-      flexDirection: 'row',
-      gap: 20, 
-    },
-    landscapeColumn: {
-      flex: 1,
-      justifyContent: 'flex-start',
-    },
-    portraitScroll: {
-      flexGrow: 1,
-      justifyContent: 'center',
-    },
-    inputContainer: {
-      marginBottom: isLandscape ? 6 : 12,
-    },
-    label: {
-      fontSize: 12,
-      fontWeight: '600',
-      color: colors.textMain,
-      marginBottom: 4,
-    },
-    inputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderRadius: 24,
-      paddingHorizontal: 16,
-      height: isLandscape ? 40 : 45, 
-    },
-    input: {
-      flex: 1,
-      height: '100%',
-    },
-    errorText: {
-      color: colors.errorRed,
-      fontSize: 11,
-      marginTop: 4,
-      marginLeft: 10,
-    },
-    serverMessage: {
-      textAlign: 'center',
-      fontSize: 14,
-      fontWeight: '600',
-      marginTop: 10,
-    },
-    registerButton: {
-      backgroundColor: colors.cardBackground,
-      padding: isLandscape ? 12 : 18, 
-      borderRadius: 28,
-      alignItems: 'center',
-      marginTop: isLandscape ? 15 : 25, 
-      borderColor: colors.borderColor,
-      borderWidth: 1,
-    },
-    registerButtonActive: {
-      backgroundColor: colors.primaryAccent,
-      borderWidth: 0,
-    },
-    registerButtonText: {
-      color: colors.textMain,
-      fontWeight: 'bold',
-      fontSize: 18,
-    },
-    registerButtonSubtext: {
-      color: colors.textMain,
-      fontSize: 12,
-      opacity: 0.8,
-    },
-    dateValue: { 
-      flex: 1, 
-    },
-});

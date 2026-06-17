@@ -4,14 +4,19 @@ import { useContext } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ServerContext } from '../../context/server-context';
 import { useAppTheme } from '../../context/theme-context.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TabsLayout() {
     const { colors } = useAppTheme();
     const { user, setUser } = useContext(ServerContext);
     const router = useRouter();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setUser(null);
+        
+        await AsyncStorage.removeItem('saved_identifier');
+        await AsyncStorage.removeItem('saved_password');
+        
         router.replace('/(auth)/login');
     };
 

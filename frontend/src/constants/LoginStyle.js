@@ -1,0 +1,21 @@
+export const generateLoginStyles = (colors) => ({
+    keyboardAvoiding: { flex: 1, backgroundColor: colors.background },
+    container: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
+    headerContainer: { alignItems: 'center', marginBottom: 40 },
+    header: { fontSize: 28, fontWeight: 'bold', color: colors.textMain, marginBottom: 8 },
+    subHeader: { fontSize: 16, color: colors.textGrey },
+    inputContainer: { marginBottom: 16 },
+    label: { fontSize: 12, fontWeight: '600', color: colors.textMain, marginBottom: 6, marginLeft: 4 },
+    inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.borderColor, borderRadius: 12, paddingHorizontal: 14, height: 50 },
+    inputIcon: { marginRight: 10 },
+    input: { flex: 1, color: colors.textMain, fontSize: 15, height: '100%' },
+    errorText: { color: colors.errorRed, fontSize: 12, marginTop: 4, marginLeft: 4 },
+    generalErrorContainer: { backgroundColor: colors.errorRed + '20', borderWidth: 1, borderColor: colors.errorRed, padding: 12, borderRadius: 8, marginBottom: 16, alignItems: 'center' },
+    generalErrorText: { color: colors.errorRed, fontWeight: '600', fontSize: 14 },
+    rememberRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginLeft: 4 },
+    rememberText: { color: colors.textMain, marginLeft: 8, fontSize: 14, fontWeight: '500' },
+    primaryBtn: { backgroundColor: colors.primaryAccent, paddingVertical: 15, borderRadius: 12, alignItems: 'center', marginTop: 10, marginBottom: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+    btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+    secondaryBtn: { alignItems: 'center', paddingVertical: 10 },
+    secondaryBtnText: { color: colors.textMain, fontSize: 14, fontWeight: '600' }
+});

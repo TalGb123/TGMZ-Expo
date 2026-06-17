@@ -26,13 +26,20 @@
 
 
     router.get('/login', async (req, res) => {
-        const { id, pass } = req.query; 
+        const { id, pass } = req.query;
+        
         if(!id || !pass) {
-        return res.status(400).json({ message: "Missing id or password" });
-    }
+            return res.status(400).json({ message: "Missing id or password" });
+        }
+        
         try {
-            // Added populate
-            const user = await User.findOne({ id: id }).populate('savedBuilds.buildRef');
+            const user = await User.findOne({ 
+                $or: [
+                    { id: id }, 
+                    { email: id }
+                ] 
+            }).populate('savedBuilds.buildRef');
+
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }

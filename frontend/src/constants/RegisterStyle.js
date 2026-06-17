@@ -1,0 +1,22 @@
+export const generateRegisterStyles = (colors, isLandscape) => ({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    keyboardAvoiding: { flex: 1 },
+    mainContainer: { flex: 1, backgroundColor: colors.background, paddingHorizontal: 24, paddingTop: isLandscape ? 10 : 20, paddingBottom: isLandscape ? 10 : 20 },
+    headerContainer: { alignItems: 'center', marginBottom: isLandscape ? 5 : 10 },
+    mainTitle: { fontFamily: 'Jomhuria', fontSize: isLandscape ? 40 : 50, color: colors.primaryAccent, textAlign: 'center', paddingTop: 5 },
+    formContainer: { flex: 1 },
+    landscapeRow: { flex: 1, flexDirection: 'row', gap: 20 },
+    landscapeColumn: { flex: 1, justifyContent: 'flex-start' },
+    portraitScroll: { flexGrow: 1, justifyContent: 'center' },
+    inputContainer: { marginBottom: isLandscape ? 6 : 12 },
+    label: { fontSize: 12, fontWeight: '600', color: colors.textMain, marginBottom: 4 },
+    inputWrapper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 24, paddingHorizontal: 16, height: isLandscape ? 40 : 45 },
+    input: { flex: 1, height: '100%', color: colors.textMain },
+    errorText: { color: colors.errorRed, fontSize: 11, marginTop: 4, marginLeft: 10 },
+    serverMessage: { textAlign: 'center', fontSize: 14, fontWeight: '600', marginTop: 10 },
+    registerButton: { backgroundColor: colors.cardBackground, padding: isLandscape ? 12 : 18, borderRadius: 28, alignItems: 'center', marginTop: isLandscape ? 15 : 25, borderColor: colors.borderColor, borderWidth: 1 },
+    registerButtonActive: { backgroundColor: colors.primaryAccent, borderWidth: 0 },
+    registerButtonText: { color: colors.textMain, fontWeight: 'bold', fontSize: 18 },
+    registerButtonSubtext: { color: colors.textMain, fontSize: 12, opacity: 0.8 },
+    dateValue: { flex: 1 }
+});
