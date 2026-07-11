@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ServerContext } from '../../context/server-context';
 import { useAppTheme } from '../../context/theme-context.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../../localization/translation.js';
 
 export default function TabsLayout() {
     const { colors } = useAppTheme();
@@ -38,10 +39,10 @@ export default function TabsLayout() {
                 </TouchableOpacity>
             ) : null
         }}>
-            <Tabs.Screen name="products" options={{ title: 'Store' }} />
-            <Tabs.Screen name="spec-builder" options={{ title: 'PC Builder' }} />
-            <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
-            <Tabs.Screen name="inventory" options={{ title: 'Inventory' }} />
+            <Tabs.Screen name="products" options={{ title: i18n.t('tab_store') }} />
+            <Tabs.Screen name="spec-builder" options={{ title: i18n.t('tab_builder') }} />
+            <Tabs.Screen name="profile" options={{ title: i18n.t('tab_profile') }} />
+            <Tabs.Screen name="inventory" options={{ title: i18n.t('tab_inventory') }} />
         </Tabs>
     );
 }

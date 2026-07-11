@@ -4,16 +4,17 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import CategoryList from '../../components/category-list.jsx';
 import { useStyles, useAppTheme } from '../../context/theme-context.js';
 import { generateProductsStyles } from '../../constants/ProductsStyle.js';
+import i18n from '../../localization/translation.js';
 
 const hardwareCategories = [
-    { name: "CPU", dbName: "CPU", img: "../../../assets/cpu.png" },
-    { name: "CPU Cooler", dbName: "CPUCooler", img: "../../../assets/cooler.png" },
-    { name: "Motherboard", dbName: "Motherboard", img: "../../../assets/motherboard.png" },
-    { name: "RAM", dbName: "Memory", img: "../../../assets/ram.png" },
-    { name: "Storage", dbName: "Storage", img: "../../../assets/storage.png" },
-    { name: "GPU", dbName: "VideoCard", img: "../../../assets/gpu.png" },
-    { name: "Power Supply", dbName: "PowerSupply", img: "../../../assets/psu.png" },
-    { name: "Case", dbName: "Case", img: "../../../assets/case.png" }
+    { translationKey: "cat_cpu", dbName: "CPU", img: "../../../assets/cpu.png" },
+    { translationKey: "cat_cooler", dbName: "CPUCooler", img: "../../../assets/cooler.png" },
+    { translationKey: "cat_mobo", dbName: "Motherboard", img: "../../../assets/motherboard.png" },
+    { translationKey: "cat_ram", dbName: "Memory", img: "../../../assets/ram.png" },
+    { translationKey: "cat_storage", dbName: "Storage", img: "../../../assets/storage.png" },
+    { translationKey: "cat_gpu", dbName: "VideoCard", img: "../../../assets/gpu.png" },
+    { translationKey: "cat_psu", dbName: "PowerSupply", img: "../../../assets/psu.png" },
+    { translationKey: "cat_case", dbName: "Case", img: "../../../assets/case.png" }
 ];
 
 export default function ProductsScreen() {
@@ -43,7 +44,7 @@ export default function ProductsScreen() {
         <View style={styles.container}>
             {!category ? (
                 <ScrollView contentContainerStyle={styles.content}>
-                    <Text style={styles.pageTitle}>Browse Categories</Text>
+                    <Text style={styles.pageTitle}>{i18n.t('products_browse')}</Text>
                     <View style={styles.grid}>
                         {hardwareCategories.map((cat, idx) => (
                             <TouchableOpacity 
@@ -57,7 +58,7 @@ export default function ProductsScreen() {
                                     style={styles.bubbleImage} 
                                     resizeMode="contain"
                                 />
-                                <Text style={styles.bubbleText}>{cat.name}</Text>
+                                <Text style={styles.bubbleText}>{i18n.t(cat.translationKey)}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -66,10 +67,12 @@ export default function ProductsScreen() {
                 <View style={styles.listViewWrapper}>
                     <View style={styles.headerRow}>
                         <Text style={styles.activeCategoryTitle}>
-                            {hardwareCategories.find(c => c.dbName === category)?.name || "Products"}
+                            {hardwareCategories.find(c => c.dbName === category) 
+                                ? i18n.t(hardwareCategories.find(c => c.dbName === category).translationKey) 
+                                : i18n.t('products_fallback_title')}
                         </Text>
                         <TouchableOpacity style={styles.backBtn} onPress={clearCategory}>
-                            <Text style={styles.backBtnText}>← Back</Text>
+                            <Text style={styles.backBtnText}>{i18n.t('products_back')}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.listWrapper}>

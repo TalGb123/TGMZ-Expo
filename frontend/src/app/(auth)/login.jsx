@@ -6,6 +6,7 @@ import { ServerContext } from '../../context/server-context';
 import { Link, useRouter } from 'expo-router';
 import { useStyles, useAppTheme } from '../../context/theme-context.js';
 import { generateLoginStyles } from '../../constants/LoginStyle.js';
+import i18n from '../../localization/translation';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -22,10 +23,28 @@ export default function LoginScreen() {
     const [fieldErrors, setFieldErrors] = useState({});
     const [generalError, setGeneralError] = useState("");
 
+    // Language states
+    const [showLangMenu, setShowLangMenu] = useState(false);
+    const [currentLocale, setCurrentLocale] = useState(i18n.locale);
+
+    const changeLanguage = async (langCode) => {
+        i18n.locale = langCode;
+        setCurrentLocale(langCode);
+        setShowLangMenu(false);
+        await AsyncStorage.setItem('app_language', langCode);
+    };
+
     // Load saved credentials on mount
     useEffect(() => {
         const loadCredentials = async () => {
             try {
+                // Check for saved language first
+                const savedLang = await AsyncStorage.getItem('app_language');
+                if (savedLang) {
+                    i18n.locale = savedLang;
+                    setCurrentLocale(savedLang);
+                }
+
                 const savedId = await AsyncStorage.getItem('saved_identifier');
                 const savedPass = await AsyncStorage.getItem('saved_password');
                 if (savedId && savedPass) {
@@ -42,8 +61,8 @@ export default function LoginScreen() {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!identifier.trim()) newErrors.identifier = "Please enter your ID or Email";
-        if (!password.trim()) newErrors.password = "Please enter your password";
+        if (!identifier.trim()) newErrors.identifier = i18n.t('login_err_empty_id');
+        if (!password.trim()) newErrors.password = i18n.t('login_err_empty_pass');
         setFieldErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -81,9 +100,9 @@ export default function LoginScreen() {
         } catch (error) {
             setLoading(false);
             if (error.response && (error.response.status === 404 || error.response.status === 401)) {
-                setGeneralError("❌ Wrong email/id and/or password");
+                setGeneralError(i18n.t('login_err_wrong_creds'));
             } else {
-                setGeneralError("❌ Server Error. Please try again later.");
+                setGeneralError(i18n.t('login_err_server'));
             }
         }
     };
@@ -97,25 +116,42 @@ export default function LoginScreen() {
         <KeyboardAvoidingView style={styles.keyboardAvoiding} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.container}>
+                    <View style={styles.langSwitcherContainer}>
+                        <TouchableOpacity onPress={() => setShowLangMenu(!showLangMenu)}>
+                            <MaterialCommunityIcons name="web" size={28} color={colors.textMain} />
+                        </TouchableOpacity>
+
+                        {showLangMenu && (
+                            <View style={styles.langMenu}>
+                                <TouchableOpacity onPress={() => changeLanguage('en')} style={styles.langOptionTop}>
+                                    <Text style={[styles.langText, { fontWeight: currentLocale === 'en' ? 'bold' : 'normal' }]}>English</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => changeLanguage('he')} style={styles.langOptionBottom}>
+                                    <Text style={[styles.langText, { fontWeight: currentLocale === 'he' ? 'bold' : 'normal' }]}>עברית</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+
                     <View style={styles.headerContainer}>
-                        <Text style={styles.header}>Welcome to TGMZ</Text>
-                        <Text style={styles.subHeader}>Please sign in to continue</Text>
+                        <Text style={styles.header}>{i18n.t('login_welcome')}</Text>
+                        <Text style={styles.subHeader}>{i18n.t('login_subtext')}</Text>
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>ID or Email</Text>
+                        <Text style={styles.label}>{i18n.t('login_label_id')}</Text>
                         <View style={[styles.inputWrapper, fieldErrors.identifier && { borderColor: colors.errorRed }]}>
                             <MaterialCommunityIcons name="account-outline" size={20} color={colors.textGrey} style={styles.inputIcon} />
-                            <TextInput style={styles.input} placeholder="Enter ID or Email" placeholderTextColor={colors.textGrey} value={identifier} onChangeText={(text) => { setIdentifier(text); if (fieldErrors.identifier) setFieldErrors(prev => ({ ...prev, identifier: null })); }} keyboardType="email-address" autoCapitalize="none" />
+                            <TextInput style={styles.input} placeholder={i18n.t('login_placeholder_id')} placeholderTextColor={colors.textGrey} value={identifier} onChangeText={(text) => { setIdentifier(text); if (fieldErrors.identifier) setFieldErrors(prev => ({ ...prev, identifier: null })); }} keyboardType="email-address" autoCapitalize="none" />
                         </View>
                         {fieldErrors.identifier && <Text style={styles.errorText}>{fieldErrors.identifier}</Text>}
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Password</Text>
+                        <Text style={styles.label}>{i18n.t('login_label_pass')}</Text>
                         <View style={[styles.inputWrapper, fieldErrors.password && { borderColor: colors.errorRed }]}>
                             <MaterialCommunityIcons name="lock-outline" size={20} color={colors.textGrey} style={styles.inputIcon} />
-                            <TextInput style={styles.input} placeholder="Enter Password" placeholderTextColor={colors.textGrey} value={password} onChangeText={(text) => { setPassword(text); if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: null })); }} secureTextEntry={!showPassword} />
+                            <TextInput style={styles.input} placeholder={i18n.t('login_placeholder_pass')} placeholderTextColor={colors.textGrey} value={password} onChangeText={(text) => { setPassword(text); if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: null })); }} secureTextEntry={!showPassword} />
                             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                 <MaterialCommunityIcons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color={colors.textGrey} />
                             </TouchableOpacity>
@@ -125,7 +161,7 @@ export default function LoginScreen() {
 
                     <TouchableOpacity style={styles.rememberRow} onPress={() => setRememberMe(!rememberMe)}>
                         <MaterialCommunityIcons name={rememberMe ? "checkbox-marked" : "checkbox-blank-outline"} size={24} color={rememberMe ? colors.primaryAccent : colors.textGrey} />
-                        <Text style={styles.rememberText}>Remember Me</Text>
+                        <Text style={styles.rememberText}>{i18n.t('login_remember')}</Text>
                     </TouchableOpacity>
 
                     {generalError ? (
@@ -135,15 +171,15 @@ export default function LoginScreen() {
                     ) : null}
 
                     <TouchableOpacity style={[styles.primaryBtn, loading && { opacity: 0.7 }]} onPress={handleLogin} disabled={loading}>
-                        {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.btnText}>Login</Text>}
+                        {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.btnText}>{i18n.t('login_btn_submit')}</Text>}
                     </TouchableOpacity>
 
                     <TouchableOpacity style={[styles.primaryBtn, { backgroundColor: colors.cardBackground, borderWidth: 1, borderColor: colors.borderColor, marginTop: 0 }]} onPress={handleGuest}>
-                        <Text style={[styles.btnText, { color: colors.textMain }]}>Continue as Guest</Text>
+                        <Text style={[styles.btnText, { color: colors.textMain }]}>{i18n.t('login_btn_guest')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push('/(auth)/register')}>
-                        <Text style={styles.secondaryBtnText}>Don't have an account? Register here</Text>
+                        <Text style={styles.secondaryBtnText}>{i18n.t('login_btn_register')}</Text>
                     </TouchableOpacity>
                 </View>
             </TouchableWithoutFeedback>

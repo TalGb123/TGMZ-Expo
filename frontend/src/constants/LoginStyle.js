@@ -17,5 +17,23 @@ export const generateLoginStyles = (colors) => ({
     primaryBtn: { backgroundColor: colors.primaryAccent, paddingVertical: 15, borderRadius: 12, alignItems: 'center', marginTop: 10, marginBottom: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
     btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
     secondaryBtn: { alignItems: 'center', paddingVertical: 10 },
-    secondaryBtnText: { color: colors.textMain, fontSize: 14, fontWeight: '600' }
+    secondaryBtnText: { color: colors.textMain, fontSize: 14, fontWeight: '600' },
+
+    langSwitcherContainer: { position: 'absolute', top: 50, right: 24, zIndex: 100, alignItems: 'flex-end' },
+    langMenu: { 
+        backgroundColor: colors.cardBackground, 
+        padding: 8, 
+        borderRadius: 12, 
+        borderWidth: 1, 
+        borderColor: colors.borderColor, 
+        marginTop: 8, 
+        shadowColor: "#000", 
+        shadowOffset: { width: 0, height: 2 }, 
+        shadowOpacity: 0.1, 
+        shadowRadius: 4,
+        elevation: 5 
+    },
+    langOptionTop: { paddingVertical: 8, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: colors.borderColor },
+    langOptionBottom: { paddingVertical: 8, paddingHorizontal: 16 },
+    langText: { color: colors.textMain, fontSize: 16 }
 });

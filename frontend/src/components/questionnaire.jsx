@@ -4,6 +4,7 @@ import { buildFilter } from "../utils/build-filter.js";
 import { ServerContext } from "../context/server-context.js";
 import { useStyles, useAppTheme } from "../context/theme-context.js";
 import { generateQuestionnaireStyles } from '../constants/QuestionnaireStyle.js';
+import i18n from '../localization/translation.js';
 
 export default function Questionnaire({ onClose, onBuildGenerated }) {
     const { server } = useContext(ServerContext);
@@ -47,7 +48,7 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
 
     const handleGenerate = async () => {
         if (!budget) {
-            Alert.alert("Missing Budget", "Please enter a maximum budget for your build.");
+            Alert.alert(i18n.t('q_alert_budget_title'), i18n.t('q_alert_budget_msg'));
             return;
         }
 
@@ -61,16 +62,16 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
             if (onBuildGenerated) {
                 onBuildGenerated(res.data);
             }
-        } catch (err) {
+       } catch (err) {
             console.error("Failed to generate build:", err);
             
             if (err.response && err.response.status >= 500) {
                 Alert.alert(
-                    "AI Servers Busy 🚦", 
-                    "Our AI builder is currently experiencing extremely high demand. Please wait about 30 seconds and try clicking generate again!"
+                    i18n.t('q_alert_busy_title'), 
+                    i18n.t('q_alert_busy_msg')
                 );
             } else {
-                Alert.alert("Error", "Failed to generate build. Please check your connection and try again.");
+                Alert.alert(i18n.t('q_alert_err_title'), i18n.t('q_alert_err_msg'));
             }
         } finally {
             setIsGenerating(false);
@@ -90,14 +91,14 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
     return (
         <View style={styles.container}>
             <Text style={styles.introText}>
-                Welcome! Answer a few questions and our AI will build the perfect PC for your needs.
+                {i18n.t('q_intro')}
             </Text>
             
             <View style={styles.stickyBudgetPanel}>
-                <Text style={styles.questionLabel}>1. Max budget (₪)?</Text>
+                <Text style={styles.questionLabel}>{i18n.t('q_lbl_budget')}</Text>
                 <TextInput 
                     style={styles.budgetInput}
-                    placeholder="e.g. 5000" 
+                    placeholder={i18n.t('q_ph_budget')}
                     placeholderTextColor={colors.textGrey}
                     keyboardType="numeric"
                     value={budget}
@@ -108,34 +109,53 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
             <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 
                 <View style={styles.questionBlock}>
-                    <Text style={styles.questionLabel}>2. Primary use? (Select multiple)</Text>
+                    <Text style={styles.questionLabel}>{i18n.t('q_lbl_use')}</Text>
                     <View style={styles.chipGroup}>
-                        {["Gaming", "Content Creation", "Training AI Models", "General Use"].map(opt => (
-                            <OptionChip key={opt} label={opt} isSelected={usage.includes(opt)} onPress={() => toggleArray(setUsage, opt)} />
+                        {[
+                            { val: "Gaming", t: "q_use_gaming" },
+                            { val: "Content Creation", t: "q_use_content" },
+                            { val: "Training AI Models", t: "q_use_ai" },
+                            { val: "General Use", t: "q_use_general" }
+                        ].map(opt => (
+                            <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={usage.includes(opt.val)} onPress={() => toggleArray(setUsage, opt.val)} />
                         ))}
                     </View>
                 </View>
 
                 {usage.includes("Gaming") && (
                     <View style={styles.subQuestionBlock}>
-                        <Text style={styles.subQuestionLabel}>↳ Game types?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_game_types')}</Text>
                         <View style={styles.chipGroup}>
-                            {["Esports/Shooters", "AAA/Heavy Story", "Indie/Casual", "Simulators"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={gameTypes.includes(opt)} onPress={() => toggleArray(setGameTypes, opt)} />
+                            {[
+                                { val: "Esports/Shooters", t: "q_game_esports" },
+                                { val: "AAA/Heavy Story", t: "q_game_aaa" },
+                                { val: "Indie/Casual", t: "q_game_indie" },
+                                { val: "Simulators", t: "q_game_sims" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={gameTypes.includes(opt.val)} onPress={() => toggleArray(setGameTypes, opt.val)} />
                             ))}
                         </View>
 
-                        <Text style={styles.subQuestionLabel}>↳ Target Resolution?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_resolution')}</Text>
                         <View style={styles.chipGroup}>
-                            {["1080p", "1440p", "4K"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={resolution === opt} onPress={() => setResolution(opt)} />
+                            {[
+                                { val: "1080p", t: "q_res_1080" },
+                                { val: "1440p", t: "q_res_1440" },
+                                { val: "4K", t: "q_res_4k" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={resolution === opt.val} onPress={() => setResolution(opt.val)} />
                             ))}
                         </View>
 
-                        <Text style={styles.subQuestionLabel}>↳ Quality Settings?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_quality')}</Text>
                         <View style={styles.chipGroup}>
-                            {["Low/Competitive", "Medium", "High", "Ultra"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={quality === opt} onPress={() => setQuality(opt)} />
+                            {[
+                                { val: "Low/Competitive", t: "q_qual_low" },
+                                { val: "Medium", t: "q_qual_med" },
+                                { val: "High", t: "q_qual_high" },
+                                { val: "Ultra", t: "q_qual_ultra" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={quality === opt.val} onPress={() => setQuality(opt.val)} />
                             ))}
                         </View>
                     </View>
@@ -144,10 +164,15 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
                 {/* --- CONDITIONAL CONTENT CREATION SUB-QUESTIONS --- */}
                 {usage.includes("Content Creation") && (
                     <View style={styles.subQuestionBlock}>
-                        <Text style={styles.subQuestionLabel}>↳ Content type?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_content_type')}</Text>
                         <View style={styles.chipGroup}>
-                            {["Video Editing", "3D Rendering/Animation", "Music Production", "Graphic Design/Photos"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={contentTypes.includes(opt)} onPress={() => toggleArray(setContentTypes, opt)} />
+                            {[
+                                { val: "Video Editing", t: "q_content_video" },
+                                { val: "3D Rendering/Animation", t: "q_content_3d" },
+                                { val: "Music Production", t: "q_content_music" },
+                                { val: "Graphic Design/Photos", t: "q_content_graphic" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={contentTypes.includes(opt.val)} onPress={() => toggleArray(setContentTypes, opt.val)} />
                             ))}
                         </View>
                     </View>
@@ -156,10 +181,14 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
                 {/* --- CONDITIONAL AI SUB-QUESTIONS --- */}
                 {usage.includes("Training AI Models") && (
                     <View style={styles.subQuestionBlock}>
-                        <Text style={styles.subQuestionLabel}>↳ AI Workloads?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_ai_workloads')}</Text>
                         <View style={styles.chipGroup}>
-                            {["Large Language Models (LLMs)", "Image/Video Generation", "Data Science/Machine Learning"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={aiTasks.includes(opt)} onPress={() => toggleArray(setAiTasks, opt)} />
+                            {[
+                                { val: "Large Language Models (LLMs)", t: "q_ai_llm" },
+                                { val: "Image/Video Generation", t: "q_ai_image" },
+                                { val: "Data Science/Machine Learning", t: "q_ai_data" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={aiTasks.includes(opt.val)} onPress={() => toggleArray(setAiTasks, opt.val)} />
                             ))}
                         </View>
                     </View>
@@ -168,10 +197,13 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
                 {/* --- CONDITIONAL GENERAL USE SUB-QUESTIONS --- */}
                 {usage.includes("General Use") && (
                     <View style={styles.subQuestionBlock}>
-                        <Text style={styles.subQuestionLabel}>↳ Daily intensity?</Text>
+                        <Text style={styles.subQuestionLabel}>{i18n.t('q_lbl_general_intensity')}</Text>
                         <View style={styles.chipGroup}>
-                            {["Light (Web, Office, Movies)", "Heavy Multitasking (Lots of tabs/apps)"].map(opt => (
-                                <OptionChip key={opt} label={opt} isSelected={generalTask === opt} onPress={() => setGeneralTask(opt)} />
+                            {[
+                                { val: "Light (Web, Office, Movies)", t: "q_gen_light" },
+                                { val: "Heavy Multitasking (Lots of tabs/apps)", t: "q_gen_heavy" }
+                            ].map(opt => (
+                                <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={generalTask === opt.val} onPress={() => setGeneralTask(opt.val)} />
                             ))}
                         </View>
                     </View>
@@ -179,52 +211,67 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
 
                 {/* 3. STORAGE */}
                 <View style={styles.questionBlock}>
-                    <Text style={styles.questionLabel}>3. Storage space needed?</Text>
+                    <Text style={styles.questionLabel}>{i18n.t('q_lbl_storage')}</Text>
                     <View style={styles.chipGroup}>
-                        {["500GB (Basic)", "1TB (Standard)", "2TB (Comfortable)", "4TB+ (Massive)"].map(opt => (
-                            <OptionChip key={opt} label={opt} isSelected={storage === opt} onPress={() => setStorage(opt)} />
+                        {[
+                            { val: "500GB (Basic)", t: "q_store_500" },
+                            { val: "1TB (Standard)", t: "q_store_1tb" },
+                            { val: "2TB (Comfortable)", t: "q_store_2tb" },
+                            { val: "4TB+ (Massive)", t: "q_store_4tb" }
+                        ].map(opt => (
+                            <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={storage === opt.val} onPress={() => setStorage(opt.val)} />
                         ))}
                     </View>
                 </View>
                 
                 {/* 4. Needs WIFI and Bluetooth Preference */}
                 <View style={styles.questionBlock}>
-                    <Text style={styles.questionLabel}>4. Case size preference?</Text>
+                    <Text style={styles.questionLabel}>{i18n.t('q_lbl_wifi')}</Text>
                     <View style={styles.chipGroup}>
                         <OptionChip 
-                            label="Yes" 
+                            label={i18n.t('common_yes')} 
                             isSelected={needsWifi === true} 
                             onPress={() => setNeedsWifi(true)} 
                         />
                         <OptionChip 
-                            label="No" 
+                            label={i18n.t('common_no')} 
                             isSelected={needsWifi === false} 
                             onPress={() => setNeedsWifi(false)} 
                         />
                     </View>
                 </View>
 
-                {/* 4. Physical Size Preference */}
+                {/* 5. Physical Size Preference */}
                 <View style={styles.questionBlock}>
-                    <Text style={styles.questionLabel}>4. Case size preference?</Text>
+                    <Text style={styles.questionLabel}>{i18n.t('q_lbl_size')}</Text>
                     <View style={styles.chipGroup}>
-                        {["Compact (Mini-ITX)", "Standard (Mid-Tower)", "Large (Full-Tower)", "No Preference"].map(opt => (
+                        {[
+                            { val: "Compact (Mini-ITX)", t: "q_size_compact" },
+                            { val: "Standard (Mid-Tower)", t: "q_size_standard" },
+                            { val: "Large (Full-Tower)", t: "q_size_large" },
+                            { val: "No Preference", t: "q_size_none" }
+                        ].map(opt => (
                             <OptionChip 
-                                key={opt} 
-                                label={opt} 
-                                isSelected={sizePreference === opt} 
-                                onPress={() => setSizePreference(opt)} 
+                                key={opt.val} 
+                                label={i18n.t(opt.t)} 
+                                isSelected={sizePreference === opt.val} 
+                                onPress={() => setSizePreference(opt.val)} 
                             />
                         ))}
                     </View>
                 </View>        
 
-                {/* 5. PREFERENCES */}
+                {/* 6. PREFERENCES */}
                 <View style={styles.questionBlock}>
-                    <Text style={styles.questionLabel}>5. Specific preferences?</Text>
+                    <Text style={styles.questionLabel}>{i18n.t('q_lbl_prefs')}</Text>
                     <View style={styles.chipGroup}>
-                        {["Quiet PC", "White PC Build", "Black PC Build", "RGB Needed"].map(opt => (
-                            <OptionChip key={opt} label={opt} isSelected={preferences.includes(opt)} onPress={() => toggleArray(setPreferences, opt)} />
+                        {[
+                            { val: "Quiet PC", t: "q_pref_quiet" },
+                            { val: "White PC Build", t: "q_pref_white" },
+                            { val: "Black PC Build", t: "q_pref_black" },
+                            { val: "RGB Needed", t: "q_pref_rgb" }
+                        ].map(opt => (
+                            <OptionChip key={opt.val} label={i18n.t(opt.t)} isSelected={preferences.includes(opt.val)} onPress={() => toggleArray(setPreferences, opt.val)} />
                         ))}
                     </View>
                 </View>
@@ -240,7 +287,7 @@ export default function Questionnaire({ onClose, onBuildGenerated }) {
                     {isGenerating ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <Text style={styles.generateBtnText}>✨ Generate Smart Build</Text>
+                        <Text style={styles.generateBtnText}>{i18n.t('q_btn_generate')}</Text>
                     )}
                 </TouchableOpacity>
             </View>

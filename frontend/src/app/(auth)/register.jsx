@@ -13,6 +13,7 @@ import { ServerContext } from '../../context/server-context';
 import { useStyles, useAppTheme } from '../../context/theme-context';
 import { getStyles, getThemeColors } from '../../constants/AppStyle.js';
 import { generateRegisterStyles } from '../../constants/RegisterStyle.js';
+import i18n from '../../localization/translation';
 
 const CustomInput = ({ label, value, onChangeText, onBlur, placeholder, security, keyboardType, validationState, errorMessage, leftIcon, onToggleSecurity, colors, styles }) => {
   const getBorderColor = () => {
@@ -137,16 +138,16 @@ export default function RegisterScreen() {
             password: values.password
         });
         
-        setServerMsg({ text: "Registration Successful! Redirecting...", type: "success" });
+        setServerMsg({ text: i18n.t('reg_msg_success'), type: "success" });
         setTimeout(() => {
             router.replace('/(auth)/login');
         }, 2000);
     } catch (error) {
         console.error('Error registering:', error);
         if (error.response && error.response.status === 409) {
-            setServerMsg({ text: "User ID already exists.", type: "error" });
+            setServerMsg({ text: i18n.t('reg_err_exists'), type: "error" });
         } else {
-            setServerMsg({ text: "Registration Failed. Try again.", type: "error" });
+            setServerMsg({ text: i18n.t('reg_err_failed'), type: "error" });
         }
         setLoading(false);
     }
@@ -154,17 +155,17 @@ export default function RegisterScreen() {
 
   const leftSideFields = (
     <>
-      <CustomInput label="ID (Teudat Zehut)" placeholder="123456789" value={values.id} onChangeText={(text) => setValues({ ...values, id: text })} onBlur={() => handleValidation('id', values.id)} validationState={validation.id} errorMessage="Invalid Israeli ID." leftIcon="card-account-details-outline" keyboardType="numeric" colors={colors} styles={styles} />
-      <CustomInput label="Full Name" placeholder="Sarah Smith" value={values.name} onChangeText={(text) => setValues({ ...values, name: text })} onBlur={() => handleValidation('name', values.name)} validationState={validation.name} errorMessage="Must be at least 2 characters." leftIcon="account-outline" colors={colors} styles={styles} />
-      <CustomInput label="Email Address" placeholder="sarah@gmail.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage="Must be a Gmail or Walla address." leftIcon="email-outline" keyboardType="email-address" colors={colors} styles={styles} />
-      <CustomInput label="Phone Number" placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage="Must start with 05 and contain 10 digits." leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} styles={styles} />
+      <CustomInput label={i18n.t('reg_label_id')} placeholder="123456789" value={values.id} onChangeText={(text) => setValues({ ...values, id: text })} onBlur={() => handleValidation('id', values.id)} validationState={validation.id} errorMessage={i18n.t('reg_err_id')} leftIcon="card-account-details-outline" keyboardType="numeric" colors={colors} styles={styles} />
+      <CustomInput label={i18n.t('reg_label_name')} placeholder="Sarah Smith" value={values.name} onChangeText={(text) => setValues({ ...values, name: text })} onBlur={() => handleValidation('name', values.name)} validationState={validation.name} errorMessage={i18n.t('reg_err_name')} leftIcon="account-outline" colors={colors} styles={styles} />
+      <CustomInput label={i18n.t('reg_label_email')} placeholder="sarah@gmail.com" value={values.email} onChangeText={(text) => setValues({ ...values, email: text })} onBlur={() => handleValidation('email', values.email)} validationState={validation.email} errorMessage={i18n.t('reg_err_email')} leftIcon="email-outline" keyboardType="email-address" colors={colors} styles={styles} />
+      <CustomInput label={i18n.t('reg_label_phone')} placeholder="0541234567" value={values.phone} onChangeText={(text) => setValues({ ...values, phone: text })} onBlur={() => handleValidation('phone', values.phone)} validationState={validation.phone} errorMessage={i18n.t('reg_err_phone')} leftIcon="phone-outline" keyboardType="phone-pad" colors={colors} styles={styles} />
     </>
   );
 
   const rightSideFields = (
     <>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Date of Birth</Text>
+        <Text style={styles.label}>{i18n.t('reg_label_dob')}</Text>
         <Pressable 
           style={[ styles.inputWrapper, { borderColor: validation.birthday === 'valid' ? colors.successGreen : validation.birthday === 'invalid' ? colors.errorRed : colors.borderColor, backgroundColor: colors.inputBackground } ]} 
           onPress={() => setShowDatePicker(true)}
@@ -175,7 +176,7 @@ export default function RegisterScreen() {
           </Text>
           <MaterialCommunityIcons name="calendar-outline" size={20} color={colors.textGrey} />
         </Pressable>
-        {validation.birthday === 'invalid' && <Text style={styles.errorText}>Must be at least 21 years old.</Text>}
+        {validation.birthday === 'invalid' && <Text style={styles.errorText}>{i18n.t('reg_err_dob')}</Text>}
         
         {(Platform.OS === 'ios' || showDatePicker) && (
           <DateTimePicker value={birthday || maxDate} maximumDate={maxDate} display="default"
@@ -187,7 +188,7 @@ export default function RegisterScreen() {
         )}
       </View>
 
-      <CustomInput label="Password" leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage="8+ chars, uppercase, lowercase, number & symbol." security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} styles={styles} />
+      <CustomInput label={i18n.t('reg_label_pass')} leftIcon="lock-outline" placeholder="********" value={values.password} onChangeText={(text) => setValues({ ...values, password: text })} onBlur={() => handleValidation('password', values.password)} validationState={validation.password} errorMessage={i18n.t('reg_err_pass')} security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} colors={colors} styles={styles} />
 
       {serverMsg.text ? (
         <Text style={[styles.serverMessage, { color: serverMsg.type === 'success' ? colors.successGreen : colors.errorRed }]}>
@@ -204,8 +205,8 @@ export default function RegisterScreen() {
             <ActivityIndicator color="#FFFFFF" />
         ) : (
             <>
-                <Text style={[styles.registerButtonText, isFormComplete && {color: '#FFFFFF'}]}>SIGN UP</Text>
-                <Text style={[styles.registerButtonSubtext, isFormComplete && {color: '#FFFFFF'}]}>{isFormComplete ? "Ready" : "Incomplete"}</Text>
+                <Text style={[styles.registerButtonText, isFormComplete && {color: '#FFFFFF'}]}>{i18n.t('reg_btn_submit')}</Text>
+                <Text style={[styles.registerButtonSubtext, isFormComplete && {color: '#FFFFFF'}]}>{isFormComplete ? i18n.t('reg_status_ready') : i18n.t('reg_status_incomplete')}</Text>
             </>
         )}
       </Pressable>

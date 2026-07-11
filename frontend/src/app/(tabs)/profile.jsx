@@ -10,6 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { ServerContext } from '../../context/server-context';
 import { useStyles, useAppTheme } from '../../context/theme-context';
 import { generateProfileStyles } from '../../constants/ProfileStyle';
+import i18n from '../../localization/translation.js';
 
 const ProfileInput = ({ label, value, onChangeText, placeholder, keyboardType, disabled, security, onToggleSecurity, colors, styles, errorMessage }) => (
     <View style={styles.inputContainer}>
@@ -54,22 +55,22 @@ const SavedBuildCard = ({ savedBuild, server, user, setUser, colors, styles, rou
             setUser(res.data.user);
             setIsEditing(false);
         } catch (error) {
-            Alert.alert("Error", "Failed to rename build");
+            Alert.alert(i18n.t('prof_alert_error'), i18n.t('prof_err_rename'));
         }
     };
 
     const handleDelete = () => {
-        Alert.alert("Delete Build", "Remove this build from your profile?", [
-            { text: "Cancel", style: "cancel" },
+        Alert.alert(i18n.t('prof_del_title'), i18n.t('prof_del_msg'), [
+            { text: i18n.t('spec_btn_cancel'), style: "cancel" },
             { 
-                text: "Delete", 
+                text: i18n.t('prof_btn_delete'), 
                 style: "destructive",
                 onPress: async () => {
                     try {
                         const res = await server.delete(`/users/${user.id}/remove-build/${buildData._id}`);
                         setUser(res.data.user);
                     } catch (error) {
-                        Alert.alert("Error", "Failed to remove build");
+                        Alert.alert(i18n.t('prof_alert_error'), i18n.t('prof_err_remove'));
                     }
                 }
             }
@@ -104,19 +105,19 @@ const SavedBuildCard = ({ savedBuild, server, user, setUser, colors, styles, rou
 
             {expanded && (
                 <View style={styles.buildContent}>
-                    <Text style={styles.buildDate}>Saved on: {new Date(savedBuild.savedAt).toLocaleDateString()}</Text>
-                    <Text style={styles.buildId}>ID: #{buildData.buildID}</Text>
+                    <Text style={styles.buildDate}>{i18n.t('prof_saved_on')}{new Date(savedBuild.savedAt).toLocaleDateString()}</Text>
+                    <Text style={styles.buildId}>{i18n.t('prof_build_id')}{buildData.buildID}</Text>
                     
                     <View style={styles.partsList}>
                         {[
-                            { key: 'cpu', label: 'CPU' },
-                            { key: 'cpu_cooler', label: 'Cooler' },
-                            { key: 'motherboard', label: 'Motherboard' },
-                            { key: 'ram', label: 'RAM' },
-                            { key: 'storage', label: 'Storage' },
-                            { key: 'gpu', label: 'GPU' },
-                            { key: 'power_supply', label: 'PSU' },
-                            { key: 'case', label: 'Case' }
+                            { key: 'cpu', label: i18n.t('cat_cpu') },
+                            { key: 'cpu_cooler', label: i18n.t('cat_cooler') },
+                            { key: 'motherboard', label: i18n.t('cat_mobo') },
+                            { key: 'ram', label: i18n.t('cat_ram') },
+                            { key: 'storage', label: i18n.t('cat_storage') },
+                            { key: 'gpu', label: i18n.t('cat_gpu') },
+                            { key: 'power_supply', label: i18n.t('cat_psu') },
+                            { key: 'case', label: i18n.t('cat_case') }
                         ].map(hw => buildData[hw.key] ? (
                             <View key={hw.key} style={styles.partRow}>
                                 <Text style={styles.partLabel}>{hw.label}:</Text>
@@ -127,15 +128,15 @@ const SavedBuildCard = ({ savedBuild, server, user, setUser, colors, styles, rou
 
                     <View style={styles.buildActions}>
                         <TouchableOpacity style={[styles.buildBtn, { backgroundColor: colors.primaryAccent }]} onPress={() => router.push('/(tabs)/spec-builder')}>
-                            <Text style={styles.buildBtnText}>View / Load</Text>
+                            <Text style={styles.buildBtnText}>{i18n.t('prof_btn_view')}</Text>
                         </TouchableOpacity>
                         {!isEditing && (
                             <TouchableOpacity style={[styles.buildBtn, { backgroundColor: colors.background }]} onPress={() => setIsEditing(true)}>
-                                <Text style={[styles.buildBtnText, { color: colors.textMain }]}>Rename</Text>
+                                <Text style={[styles.buildBtnText, { color: colors.textMain }]}>{i18n.t('prof_btn_rename')}</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity style={[styles.buildBtn, { backgroundColor: colors.errorRed + '20' }]} onPress={handleDelete}>
-                            <Text style={[styles.buildBtnText, { color: colors.errorRed }]}>Delete</Text>
+                            <Text style={[styles.buildBtnText, { color: colors.errorRed }]}>{i18n.t('prof_btn_delete')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -183,10 +184,10 @@ export default function ProfileScreen() {
         return (
             <View style={styles.guestContainer}>
                 <MaterialCommunityIcons name="account-off-outline" size={80} color={colors.textGrey} style={{marginBottom: 20}} />
-                <Text style={styles.guestTitle}>Guest Mode</Text>
-                <Text style={styles.guestSubtitle}>You must be logged in to view your profile and saved builds.</Text>
+                <Text style={styles.guestTitle}>{i18n.t('prof_guest_title')}</Text>
+                <Text style={styles.guestSubtitle}>{i18n.t('prof_guest_subtitle')}</Text>
                 <TouchableOpacity style={styles.loginBtn} onPress={() => router.replace('/(auth)/login')}>
-                    <Text style={styles.loginBtnText}>Go to Login / Register</Text>
+                    <Text style={styles.loginBtnText}>{i18n.t('prof_guest_btn')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -194,23 +195,23 @@ export default function ProfileScreen() {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.name.trim()) newErrors.name = "Name is required";
+        if (!formData.name.trim()) newErrors.name = i18n.t('prof_err_name_req');
         
         if (!formData.email) {
-            newErrors.email = "Email is required";
+            newErrors.email = i18n.t('prof_err_email_req');
         } else if (!/^[a-zA-Z0-9._%+-]+@(walla|gmail)\.(com|co\.il)$/.test(formData.email)) {
-            newErrors.email = "Must be a Gmail or Walla address";
+            newErrors.email = i18n.t('reg_err_email');
         }
 
         if (!formData.phone) {
-            newErrors.phone = "Phone is required";
+            newErrors.phone = i18n.t('prof_err_phone_req');
         } else {
             const cleanPhone = formData.phone.replace(/-/g, "");
-            if (!/^05\d{8}$/.test(cleanPhone)) newErrors.phone = "Must start with 05 and contain 10 digits";
+            if (!/^05\d{8}$/.test(cleanPhone)) newErrors.phone = i18n.t('reg_err_phone');
         }
 
         if (formData.password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(formData.password)) {
-            newErrors.password = "8+ chars, uppercase, lowercase, number & symbol";
+            newErrors.password = i18n.t('reg_err_pass');
         }
 
         setErrors(newErrors);
@@ -233,11 +234,11 @@ export default function ProfileScreen() {
         try {
             const response = await server.patch(`/users/${user.id}`, updates);
             if (response.status === 200) {
-                setStatusMsg({ text: "Profile updated successfully!", type: "success" });
+                setStatusMsg({ text: i18n.t('prof_msg_success'), type: "success" });
                 setUser({ ...user, ...updates });
             }
         } catch (error) {
-            setStatusMsg({ text: error.response?.data?.message || "Failed to update profile", type: "error" });
+            setStatusMsg({ text: error.response?.data?.message || i18n.t('prof_msg_fail'), type: "error" });
         } finally {
             setLoading(false);
         }
@@ -245,17 +246,17 @@ export default function ProfileScreen() {
 
     const renderInfoForm = () => (
         <View style={styles.sectionContainer}>
-            <Text style={styles.sectionHeader}>Personal Information</Text>
-            <ProfileInput label="ID (Cannot be changed)" value={formData.id} disabled colors={colors} styles={styles} />
-            <ProfileInput label="Full Name" value={formData.name} onChangeText={(text) => setFormData({...formData, name: text})} errorMessage={errors.name} colors={colors} styles={styles} />
-            <ProfileInput label="Email Address" value={formData.email} onChangeText={(text) => setFormData({...formData, email: text})} keyboardType="email-address" errorMessage={errors.email} colors={colors} styles={styles} />
-            <ProfileInput label="Phone Number" value={formData.phone} onChangeText={(text) => setFormData({...formData, phone: text})} keyboardType="phone-pad" errorMessage={errors.phone} colors={colors} styles={styles} />
+            <Text style={styles.sectionHeader}>{i18n.t('prof_sec_personal')}</Text>
+            <ProfileInput label={i18n.t('prof_lbl_id_fixed')} value={formData.id} disabled colors={colors} styles={styles} />
+            <ProfileInput label={i18n.t('prof_lbl_name')} value={formData.name} onChangeText={(text) => setFormData({...formData, name: text})} errorMessage={errors.name} colors={colors} styles={styles} />
+            <ProfileInput label={i18n.t('prof_lbl_email')} value={formData.email} onChangeText={(text) => setFormData({...formData, email: text})} keyboardType="email-address" errorMessage={errors.email} colors={colors} styles={styles} />
+            <ProfileInput label={i18n.t('prof_lbl_phone')} value={formData.phone} onChangeText={(text) => setFormData({...formData, phone: text})} keyboardType="phone-pad" errorMessage={errors.phone} colors={colors} styles={styles} />
             
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>Birthday</Text>
+                <Text style={styles.label}>{i18n.t('prof_lbl_birthday')}</Text>
                 <TouchableOpacity style={[styles.inputWrapper, { paddingVertical: 12 }]} onPress={() => setShowDatePicker(true)}>
                     <Text style={{ color: formData.birthday ? colors.textMain : colors.textGrey }}>
-                        {formData.birthday ? new Date(formData.birthday).toLocaleDateString() : 'Select Date'}
+                        {formData.birthday ? new Date(formData.birthday).toLocaleDateString() : i18n.t('prof_lbl_select_date')}
                     </Text>
                 </TouchableOpacity>
                 {(Platform.OS === 'ios' || showDatePicker) && (
@@ -271,21 +272,21 @@ export default function ProfileScreen() {
                 )}
             </View>
 
-            <ProfileInput label="Password" value={formData.password} onChangeText={(text) => setFormData({...formData, password: text})} security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} errorMessage={errors.password} colors={colors} styles={styles} />
+            <ProfileInput label={i18n.t('prof_lbl_password')} value={formData.password} onChangeText={(text) => setFormData({...formData, password: text})} security={!showPassword} onToggleSecurity={() => setShowPassword(!showPassword)} errorMessage={errors.password} colors={colors} styles={styles} />
 
             {statusMsg.text ? (
                 <Text style={[styles.statusMsg, { color: statusMsg.type === 'success' ? colors.successGreen : colors.errorRed }]}>{statusMsg.text}</Text>
             ) : null}
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleUpdateProfile} disabled={loading}>
-                {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
+                {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.saveBtnText}>{i18n.t('prof_btn_save')}</Text>}
             </TouchableOpacity>
         </View>
     );
 
     const renderBuilds = () => (
         <View style={styles.sectionContainer}>
-            <Text style={styles.sectionHeader}>Saved Builds</Text>
+            <Text style={styles.sectionHeader}>{i18n.t('prof_sec_builds')}</Text>
             {user.savedBuilds && user.savedBuilds.length > 0 ? (
                 user.savedBuilds.map((savedBuild, index) => (
                     savedBuild.buildRef ? (
@@ -293,7 +294,7 @@ export default function ProfileScreen() {
                     ) : null
                 ))
             ) : (
-                <Text style={styles.emptyText}>You haven't saved any builds yet.</Text>
+                <Text style={styles.emptyText}>{i18n.t('prof_empty_builds')}</Text>
             )}
         </View>
     );
@@ -306,10 +307,10 @@ export default function ProfileScreen() {
                     {!isLandscape && (
                         <View style={styles.segmentContainer}>
                             <TouchableOpacity style={[styles.segmentBtn, activeTab === 'info' && styles.segmentBtnActive]} onPress={() => setActiveTab('info')}>
-                                <Text style={[styles.segmentText, activeTab === 'info' && styles.segmentTextActive]}>My Info</Text>
+                                <Text style={[styles.segmentText, activeTab === 'info' && styles.segmentTextActive]}>{i18n.t('prof_tab_info')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.segmentBtn, activeTab === 'builds' && styles.segmentBtnActive]} onPress={() => setActiveTab('builds')}>
-                                <Text style={[styles.segmentText, activeTab === 'builds' && styles.segmentTextActive]}>Saved Builds</Text>
+                                <Text style={[styles.segmentText, activeTab === 'builds' && styles.segmentTextActive]}>{i18n.t('prof_tab_builds')}</Text>
                             </TouchableOpacity>
                         </View>
                     )}

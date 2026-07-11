@@ -5,81 +5,82 @@ import { useRouter } from "expo-router";
 import { ServerContext } from "../../context/server-context.js";
 import { useStyles, useAppTheme } from "../../context/theme-context.js";
 import { generateInventoryStyles } from "../../constants/InventoryStyle.js";
+import i18n from '../../localization/translation.js';
 
 const CATEGORIES = ["CPU", "CPUCooler", "Motherboard", "Memory", "Storage", "VideoCard", "PowerSupply", "Case"];
 
 const CATEGORY_PROPS = {
     CPU: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "socket", type: "datalist", dynamicKey: "sockets", label: "Socket", required: true },
-        { name: "supported_memory", type: "multi-select", dynamicKey: "memoryGens", options: ["DDR4", "DDR5"], label: "Memory Supported", required: true },
-        { name: "has_apu", type: "select", options: ["true", "false"], label: "Has APU" },
-        { name: "tdp", type: "number", label: "TDP (W)" },
-        { name: "core_count", type: "number", label: "Core Count", required: true },
-        { name: "core_clock", type: "number", label: "Core Clock (GHz)", required: true },
-        { name: "boost_clock", type: "number", label: "Boost Clock (GHz)" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "socket", type: "datalist", dynamicKey: "sockets", translationKey: "spec_socket", required: true },
+        { name: "supported_memory", type: "multi-select", dynamicKey: "memoryGens", options: ["DDR4", "DDR5"], translationKey: "inv_prop_mem_supp", required: true },
+        { name: "has_apu", type: "select", options: ["true", "false"], translationKey: "inv_prop_has_apu" },
+        { name: "tdp", type: "number", translationKey: "inv_prop_tdp" },
+        { name: "core_count", type: "number", translationKey: "spec_core_count", required: true },
+        { name: "core_clock", type: "number", translationKey: "inv_prop_core_clock", required: true },
+        { name: "boost_clock", type: "number", translationKey: "inv_prop_boost_clock" },
     ],
     CPUCooler: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "type", type: "select", options: ["Air", "Liquid"], label: "Type" },
-        { name: "radiator_size", type: "datalist", dynamicKey: "radiatorSizes", label: "Radiator Size (mm) (0 if Air)" },
-        { name: "supported_sockets", type: "multi-select", dynamicKey: "sockets", label: "Supported Sockets" },
-        { name: "max_tdp_cooling", type: "number", label: "TDP Rating (W)" },
-        { name: "height", type: "number", label: "Height (mm)" },
-        { name: "noise_level", type: "number", label: "Noise Level (dB)" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "type", type: "select", options: ["Air", "Liquid"], translationKey: "spec_type" },
+        { name: "radiator_size", type: "datalist", dynamicKey: "radiatorSizes", translationKey: "inv_prop_rad_size" },
+        { name: "supported_sockets", type: "multi-select", dynamicKey: "sockets", translationKey: "inv_prop_supp_sockets" },
+        { name: "max_tdp_cooling", type: "number", translationKey: "inv_prop_tdp_rating" },
+        { name: "height", type: "number", translationKey: "inv_prop_height" },
+        { name: "noise_level", type: "number", translationKey: "inv_prop_noise" },
     ],
     Motherboard: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "socket", type: "datalist", dynamicKey: "sockets", label: "Socket", required: true },
-        { name: "form_factor", type: "datalist", dynamicKey: "moboFormFactors", label: "Form Factor", required: true },
-        { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Gen" },
-        { name: "has_wifi_bluetooth", type: "select", options: ["true", "false"], label: "Has Bluetooth & WiFi" },
-        { name: "memory_slots", type: "number", label: "Memory Slots", required: true },
-        { name: "m2_slots", type: "number", label: "SSD NVMe Slots" },
-        { name: "connections", type: "connection-builder", label: "Rear I/O Connections" },
-        { name: "vrm_tier", type: "number", label: "VRM Tier (1-5)", required: true }
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "socket", type: "datalist", dynamicKey: "sockets", translationKey: "spec_socket", required: true },
+        { name: "form_factor", type: "datalist", dynamicKey: "moboFormFactors", translationKey: "spec_form_factor", required: true },
+        { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", translationKey: "spec_mem_gen" },
+        { name: "has_wifi_bluetooth", type: "select", options: ["true", "false"], translationKey: "inv_prop_bt_wifi" },
+        { name: "memory_slots", type: "number", translationKey: "spec_mem_slots", required: true },
+        { name: "m2_slots", type: "number", translationKey: "inv_prop_m2_slots" },
+        { name: "connections", type: "connection-builder", translationKey: "spec_rear_io" },
+        { name: "vrm_tier", type: "number", translationKey: "inv_prop_vrm", required: true }
     ],
     Memory: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", label: "Memory Gen", required: true },
-        { name: "speed_mhz", type: "number", label: "Speed (MHz)", required: true },
-        { name: "cas_latency", type: "number", label: "CAS Latency", required: true },
-        { name: "module_sticks", type: "number", label: "Stick Amount", required: true },
-        { name: "module_capacity", type: "number", label: "Capacity Per Stick (GB)", required: true },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "memory_gen", type: "datalist", dynamicKey: "memoryGens", translationKey: "spec_mem_gen", required: true },
+        { name: "speed_mhz", type: "number", translationKey: "inv_prop_speed", required: true },
+        { name: "cas_latency", type: "number", translationKey: "spec_cas", required: true },
+        { name: "module_sticks", type: "number", translationKey: "inv_prop_stick_amt", required: true },
+        { name: "module_capacity", type: "number", translationKey: "inv_prop_cap_per_stick", required: true },
     ],
     Storage: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "capacity", type: "number", label: "Capacity (GB)", required: true },
-        { name: "drive_type", type: "datalist", dynamicKey: "driveTypes", label: "Drive Type" },
-        { name: "form_factor", type: "datalist", dynamicKey: "storageFormFactors", label: "Form Factor" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "capacity", type: "number", translationKey: "inv_prop_capacity", required: true },
+        { name: "drive_type", type: "datalist", dynamicKey: "driveTypes", translationKey: "spec_drive_type" },
+        { name: "form_factor", type: "datalist", dynamicKey: "storageFormFactors", translationKey: "spec_form_factor" },
     ],
     PowerSupply: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "wattage", type: "number", label: "Wattage (W)", required: true },
-        { name: "efficiency", type: "select", options: ["80+ White", "80+ Bronze", "80+ Silver", "80+ Gold", "80+ Platinum", "80+ Titanium"], label: "Efficiency Rating" },
-        { name: "type", type: "select", options: ["ATX", "SFX"], label: "Type" },
-        { name: "modular", type: "select", options: ["Full", "Semi", "No"], label: "Modular" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "wattage", type: "number", translationKey: "inv_prop_wattage", required: true },
+        { name: "efficiency", type: "select", options: ["80+ White", "80+ Bronze", "80+ Silver", "80+ Gold", "80+ Platinum", "80+ Titanium"], translationKey: "inv_prop_efficiency" },
+        { name: "type", type: "select", options: ["ATX", "SFX"], translationKey: "spec_type" },
+        { name: "modular", type: "select", options: ["Full", "Semi", "No"], translationKey: "spec_modular" },
     ],
     VideoCard: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "chipset", type: "datalist", dynamicKey: "gpuChipsets", label: "Chipset", required: true },
-        { name: "memory", type: "number", label: "Memory (GB)" },
-        { name: "tdp", type: "number", label: "TDP (W)" },
-        { name: "length", type: "number", label: "Length (mm)" },
-        { name: "core_clock", type: "number", label: "Core Clock (MHz)" },
-        { name: "boost_clock", type: "number", label: "Boost Clock (MHz)" },
-        { name: "slots_required", type: "number", label: "Slots Required" },
-        { name: "recommended_psu_wattage", type: "number", label: "Recommended PSU Wattage (W)" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "chipset", type: "datalist", dynamicKey: "gpuChipsets", translationKey: "spec_chipset", required: true },
+        { name: "memory", type: "number", translationKey: "inv_prop_memory_gb" },
+        { name: "tdp", type: "number", translationKey: "inv_prop_tdp" },
+        { name: "length", type: "number", translationKey: "inv_prop_length" },
+        { name: "core_clock", type: "number", translationKey: "inv_prop_core_clock_mhz" },
+        { name: "boost_clock", type: "number", translationKey: "inv_prop_boost_clock_mhz" },
+        { name: "slots_required", type: "number", translationKey: "spec_slots_req" },
+        { name: "recommended_psu_wattage", type: "number", translationKey: "inv_prop_rec_psu" },
     ],
     Case: [
-        { name: "brand", type: "datalist", dynamicKey: "brands", label: "Brand", required: true },
-        { name: "type", type: "datalist", dynamicKey: "moboFormFactors", label: "Type (e.g. Mid Tower)" },
-        { name: "supported_mobo_form_factors", type: "multi-select", dynamicKey: "moboFormFactors", options: ["ATX", "Micro-ATX", "Mini-ITX", "E-ATX"], label: "Supported Motherboards", required: true },
-        { name: "max_gpu_length", type: "number", label: "GPU Length (mm)", required: true },
-        { name: "max_cpu_cooler_height", type: "number", label: "CPU Cooler Height (mm)", required: true },
-        { name: "psu_form_factor", type: "select", options: ["ATX", "SFX"], label: "PSU Form Factor", required: true },
-        { name: "supported_radiators", type: "multi-select", dynamicKey: "caseRadiators", options: [120, 240, 280, 360, 420], label: "Supported Radiators" },
-        { name: "sidepanel_material", type: "text", label: "Side Panel Material" },
+        { name: "brand", type: "datalist", dynamicKey: "brands", translationKey: "inv_prop_brand", required: true },
+        { name: "type", type: "datalist", dynamicKey: "moboFormFactors", translationKey: "inv_prop_case_type" },
+        { name: "supported_mobo_form_factors", type: "multi-select", dynamicKey: "moboFormFactors", options: ["ATX", "Micro-ATX", "Mini-ITX", "E-ATX"], translationKey: "inv_prop_supp_mobos", required: true },
+        { name: "max_gpu_length", type: "number", translationKey: "inv_prop_gpu_len", required: true },
+        { name: "max_cpu_cooler_height", type: "number", translationKey: "inv_prop_cooler_height", required: true },
+        { name: "psu_form_factor", type: "select", options: ["ATX", "SFX"], translationKey: "spec_psu_form", required: true },
+        { name: "supported_radiators", type: "multi-select", dynamicKey: "caseRadiators", options: [120, 240, 280, 360, 420], translationKey: "spec_rad_support" },
+        { name: "sidepanel_material", type: "text", translationKey: "spec_side_panel" },
     ]
 };
 
@@ -163,17 +164,17 @@ export default function InventoryScreen() {
     };
 
     const handleDelete = (id) => {
-        Alert.alert("Delete Item", "Are you sure you want to delete this product?", [
-            { text: "Cancel", style: "cancel" },
+        Alert.alert(i18n.t('inv_del_title'), i18n.t('inv_del_msg'), [
+            { text: i18n.t('spec_btn_cancel'), style: "cancel" },
             { 
-                text: "Delete", 
+                text: i18n.t('inventory_delete'), 
                 style: "destructive",
                 onPress: async () => {
                     try {
                         await server.delete(`/products/${id}`);
                         setProducts(products.filter(p => p._id !== id));
                     } catch (err) {
-                        Alert.alert("Error", "Failed to delete item.");
+                        Alert.alert(i18n.t('prof_alert_error'), i18n.t('inv_err_del'));
                     }
                 }
             }
@@ -207,7 +208,7 @@ export default function InventoryScreen() {
             }
             setShowModal(false);
         } catch (err) {
-            Alert.alert("Save Failed", err.response?.data?.message || "Check required fields.");
+            Alert.alert(i18n.t('inv_err_save'), err.response?.data?.message || i18n.t('inv_err_save_msg'));
         }
     };
 
@@ -247,8 +248,8 @@ export default function InventoryScreen() {
     if (!user || !user.isAdmin) {
         return (
             <View style={styles.centerContainer}>
-                <Text style={styles.errorText}>Access Denied</Text>
-                <Text style={{color: colors.textGrey, marginTop: 10}}>Administrator privileges required.</Text>
+                <Text style={styles.errorText}>{i18n.t('inv_access_denied')}</Text>
+                <Text style={{color: colors.textGrey, marginTop: 10}}>{i18n.t('inv_admin_req')}</Text>
             </View>
         );
     }
@@ -257,11 +258,11 @@ export default function InventoryScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header & Main Controls */}
             <View style={styles.header}>
-                <Text style={styles.title}>Inventory Management</Text>
+                <Text style={styles.title}>{i18n.t('inventory_title')}</Text>
                 <View style={styles.controlsRow}>
                     <TextInput 
                         style={styles.searchInput}
-                        placeholder="Search by name..."
+                        placeholder={i18n.t('inventory_search')}
                         placeholderTextColor={colors.textGrey}
                         value={search}
                         onChangeText={setSearch}
@@ -272,7 +273,7 @@ export default function InventoryScreen() {
                         setModalCategory(category || "CPU");
                         setShowModal(true);
                     }}>
-                        <Text style={styles.addBtnText}>+ Add Item</Text>
+                        <Text style={styles.addBtnText}>{i18n.t('inventory_add_item')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -282,7 +283,7 @@ export default function InventoryScreen() {
                         style={[styles.pill, category === "" && styles.pillActive]}
                         onPress={() => setCategory("")}
                     >
-                        <Text style={[styles.pillText, category === "" && styles.pillTextActive]}>All</Text>
+                        <Text style={[styles.pillText, category === "" && styles.pillTextActive]}>{i18n.t('inv_cat_all')}</Text>
                     </TouchableOpacity>
                     {CATEGORIES.map(cat => (
                         <TouchableOpacity 
@@ -308,14 +309,14 @@ export default function InventoryScreen() {
                             <Text style={styles.productPrice}>₪{item.price}</Text>
                         </View>
                         <Text style={[styles.stockText, { color: item.inStock ? colors.successGreen : colors.errorRed }]}>
-                            {item.inStock ? "✓ In Stock" : "✗ Out of Stock"}
+                            {item.inStock ? i18n.t('prod_in_stock') : i18n.t('prod_out_stock')}
                         </Text>
                         <View style={styles.actionsRow}>
                             <TouchableOpacity style={[styles.actionBtn, styles.editBtn]} onPress={() => handleEdit(item)}>
-                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>Edit</Text>
+                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>{i18n.t('inventory_edit')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.actionBtn, styles.deleteBtn]} onPress={() => handleDelete(item._id)}>
-                                <Text style={{ color: colors.errorRed, fontWeight: 'bold' }}>Delete</Text>
+                                <Text style={{ color: colors.errorRed, fontWeight: 'bold' }}>{i18n.t('inventory_delete')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -329,16 +330,16 @@ export default function InventoryScreen() {
                 <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>{editingItem ? "Edit Item" : "Add New Item"}</Text>
+                            <Text style={styles.modalTitle}>{editingItem ? i18n.t('inv_modal_edit') : i18n.t('inv_modal_add')}</Text>
                             <TouchableOpacity onPress={() => setShowModal(false)}>
-                                <Text style={styles.closeText}>Close</Text>
+                                <Text style={styles.closeText}>{i18n.t('spec_btn_close')}</Text>
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
                             {/* General Fields */}
                             <View style={styles.formGroup}>
-                                <Text style={styles.label}>Category</Text>
+                                <Text style={styles.label}>{i18n.t('inv_lbl_category')}</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                     {CATEGORIES.map(cat => (
                                         <TouchableOpacity 
@@ -354,33 +355,33 @@ export default function InventoryScreen() {
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={styles.label}>Name (Required)</Text>
+                                <Text style={styles.label}>{i18n.t('inv_lbl_name_req')}</Text>
                                 <TextInput style={styles.input} value={formData.name || ""} onChangeText={t => setFormData(p => ({...p, name: t}))} />
                             </View>
                             <View style={styles.formGroup}>
-                                <Text style={styles.label}>Image URL</Text>
+                                <Text style={styles.label}>{i18n.t('inv_lbl_image')}</Text>
                                 <TextInput style={styles.input} value={formData.image || ""} onChangeText={t => setFormData(p => ({...p, image: t}))} />
                             </View>
                             <View style={styles.formGroup}>
-                                <Text style={styles.label}>Price</Text>
+                                <Text style={styles.label}>{i18n.t('inv_lbl_price')}</Text>
                                 <TextInput style={styles.input} keyboardType="numeric" value={formData.price?.toString() || ""} onChangeText={t => setFormData(p => ({...p, price: t}))} />
                             </View>
                             
                             <View style={styles.formGroup}>
-                                <Text style={styles.label}>In Stock Status</Text>
+                                <Text style={styles.label}>{i18n.t('inv_lbl_stock_status')}</Text>
                                 <View style={{ flexDirection: 'row', gap: 10 }}>
                                     <TouchableOpacity style={[styles.pill, formData.inStock !== false && styles.pillActive]} onPress={() => setFormData(p => ({...p, inStock: true}))}>
-                                        <Text style={[styles.pillText, formData.inStock !== false && styles.pillTextActive]}>Yes</Text>
+                                        <Text style={[styles.pillText, formData.inStock !== false && styles.pillTextActive]}>{i18n.t('common_yes')}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity style={[styles.pill, formData.inStock === false && styles.pillActive]} onPress={() => setFormData(p => ({...p, inStock: false}))}>
-                                        <Text style={[styles.pillText, formData.inStock === false && styles.pillTextActive]}>No</Text>
+                                        <Text style={[styles.pillText, formData.inStock === false && styles.pillTextActive]}>{i18n.t('common_no')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
 
                             {/* Dynamic Category Properties */}
                             <View style={{ height: 1, backgroundColor: colors.borderColor, marginVertical: 20 }} />
-                            <Text style={[styles.modalTitle, { marginBottom: 20 }]}>{modalCategory} Specs</Text>
+                            <Text style={[styles.modalTitle, { marginBottom: 20 }]}>{modalCategory}{i18n.t('inv_lbl_specs')}</Text>
 
                             {CATEGORY_PROPS[modalCategory]?.map((prop) => {
                                 let availableOpts = prop.options ? [...prop.options] : [];
@@ -395,7 +396,7 @@ export default function InventoryScreen() {
 
                                     return (
                                         <View key={prop.name} style={styles.formGroup}>
-                                            <Text style={styles.label}>{prop.label}</Text>
+                                            <Text style={styles.label}>{i18n.t(prop.translationKey)}</Text>
                                             <View style={styles.pillContainer}>
                                                 {availableOpts.map(opt => (
                                                     <TouchableOpacity key={opt} style={[styles.pill, currentSel.includes(opt) && styles.pillActive]} onPress={() => toggleMultiSelect(prop.name, opt)}>
@@ -405,7 +406,7 @@ export default function InventoryScreen() {
                                             </View>
                                             <TextInput 
                                                 style={[styles.input, { height: 40, marginTop: 5 }]} 
-                                                placeholder="Add custom option..." 
+                                                placeholder={i18n.t('inv_placeholder_custom')} 
                                                 placeholderTextColor={colors.textGrey}
                                                 value={customInputs[prop.name] || ""}
                                                 onChangeText={t => setCustomInputs(p => ({...p, [prop.name]: t}))}
@@ -431,7 +432,7 @@ export default function InventoryScreen() {
 
                                     return (
                                         <View key={prop.name} style={styles.formGroup}>
-                                            <Text style={styles.label}>{prop.label}</Text>
+                                            <Text style={styles.label}>{i18n.t(prop.translationKey)}</Text>
                                             {allTypes.map(conn => (
                                                 <View key={conn} style={styles.connectionRow}>
                                                     <TextInput 
@@ -452,7 +453,7 @@ export default function InventoryScreen() {
                                 if (prop.type === "select" || prop.type === "datalist") {
                                     return (
                                         <View key={prop.name} style={styles.formGroup}>
-                                            <Text style={styles.label}>{prop.label}</Text>
+                                            <Text style={styles.label}>{i18n.t(prop.translationKey)}</Text>
                                             <TextInput 
                                                 style={styles.input} 
                                                 value={formData[prop.name]?.toString() || ""} 
@@ -481,7 +482,7 @@ export default function InventoryScreen() {
                                 // Default Number/Text Input
                                 return (
                                     <View key={prop.name} style={styles.formGroup}>
-                                        <Text style={styles.label}>{prop.label}</Text>
+                                        <Text style={styles.label}>{i18n.t(prop.translationKey)}</Text>
                                         <TextInput 
                                             style={styles.input} 
                                             keyboardType={prop.type === "number" ? "numeric" : "default"}
@@ -494,10 +495,10 @@ export default function InventoryScreen() {
 
                             <View style={styles.modalActionRow}>
                                 <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowModal(false)}>
-                                    <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>Cancel</Text>
+                                    <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>{i18n.t('spec_btn_cancel')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.modalSubmitBtn} onPress={handleSave}>
-                                    <Text style={{ color: '#1C1C1E', fontWeight: 'bold', fontSize: 16 }}>Save Item</Text>
+                                    <Text style={{ color: '#1C1C1E', fontWeight: 'bold', fontSize: 16 }}>{i18n.t('inv_btn_save')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </ScrollView>

@@ -5,10 +5,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ServerContext } from '../../context/server-context.js';
 import { useStyles, useAppTheme } from '../../context/theme-context.js';
 import { generateProductDetailStyles } from '../../constants/ProductDetailStyle.js';
+import i18n from '../../localization/translation.js';
 
 const SpecRow = ({ label, value, styles }) => {
     if (value === undefined || value === null || value === '') return null;
-    const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value;
+    const displayValue = typeof value === 'boolean' ? (value ? i18n.t('common_yes') : i18n.t('common_no')) : value;
 
     return (
         <View style={styles.specRow}>
@@ -55,7 +56,7 @@ export default function ProductDetailsScreen() {
     }, [router]);
 
     if (loading) return <ActivityIndicator size="large" color={colors.primaryAccent} style={styles.center} />;
-    if (!product) return <Text style={styles.errorText}>Product not found.</Text>;
+    if (!product) return <Text style={styles.errorText}>{i18n.t('prod_not_found')}</Text>;
 
     const renderDynamicSpecs = () => {
         const commonProps = { styles }; 
@@ -63,38 +64,38 @@ export default function ProductDetailsScreen() {
             case 'CPU':
                 return (
                     <>
-                        <SpecRow label="Socket" value={product.socket} {...commonProps} />
-                        <SpecRow label="Core Count" value={product.core_count} {...commonProps} />
-                        <SpecRow label="Core Clock" value={`${product.core_clock} GHz`} {...commonProps} />
-                        <SpecRow label="Boost Clock" value={product.boost_clock ? `${product.boost_clock} GHz` : null} {...commonProps} />
-                        <SpecRow label="TDP" value={`${product.tdp} W`} {...commonProps} />
-                        <SpecRow label="Includes APU" value={product.has_apu} {...commonProps} />
-                        <SpecRow label="Supported Memory" value={product.supported_memory} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_socket')} value={product.socket} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_core_count')} value={product.core_count} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_core_clock')} value={`${product.core_clock} GHz`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_boost_clock')} value={product.boost_clock ? `${product.boost_clock} GHz` : null} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_tdp')} value={`${product.tdp} W`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_apu')} value={product.has_apu} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_memory_support')} value={product.supported_memory} {...commonProps} />
                     </>
                 );
             case 'CPUCooler':
                 return (
                     <>
-                        <SpecRow label="Type" value={product.type} {...commonProps} />
-                        <SpecRow label="Supported Sockets" value={product.supported_sockets} {...commonProps} />
-                        <SpecRow label="Height" value={product.height ? `${product.height} mm` : null} {...commonProps} />
-                        <SpecRow label="Radiator Size" value={product.radiator_size ? `${product.radiator_size} mm` : 'N/A (Air)'} {...commonProps} />
-                        <SpecRow label="Noise Level" value={product.noise_level ? `${product.noise_level} dB` : null} {...commonProps} />
-                        <SpecRow label="Max Cooling (TDP)" value={`${product.max_tdp_cooling} W`} {...commonProps} />
-                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_type')} value={product.type} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_socket')} value={product.supported_sockets} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_height')} value={product.height ? `${product.height} mm` : null} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_rad_size')} value={product.radiator_size ? `${product.radiator_size} mm` : i18n.t('spec_na_air')} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_noise')} value={product.noise_level ? `${product.noise_level} dB` : null} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_max_tdp')} value={`${product.max_tdp_cooling} W`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_color')} value={product.color} {...commonProps} />
                     </>
                 );
             case 'Motherboard':
                 return (
                     <>
-                        <SpecRow label="Socket" value={product.socket} {...commonProps} />
-                        <SpecRow label="Form Factor" value={product.form_factor} {...commonProps} />
-                        <SpecRow label="Memory Gen" value={product.memory_gen} {...commonProps} />
-                        <SpecRow label="Memory Slots" value={product.memory_slots} {...commonProps} />
-                        <SpecRow label="M.2 Slots" value={product.m2_slots} {...commonProps} />
-                        <SpecRow label="WiFi & Bluetooth" value={product.has_wifi_bluetooth} {...commonProps} />
-                        <SpecRow label="VRM Tier" value={`${product.vrm_tier}/5`} {...commonProps} />
-                        <SpecRow label="Rear Connections" value={product.connections} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_socket')} value={product.socket} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_form_factor')} value={product.form_factor} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_mem_gen')} value={product.memory_gen} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_mem_slots')} value={product.memory_slots} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_m2_slots')} value={product.m2_slots} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_wifi_bt')} value={product.has_wifi_bluetooth} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_vrm')} value={`${product.vrm_tier}/5`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_rear_io')} value={product.connections} {...commonProps} />
                     </>
                 );
             case 'Memory':
@@ -105,55 +106,55 @@ export default function ProductDetailsScreen() {
                 const capacity = product.modules?.[1] || '';
                 return (
                     <>
-                        <SpecRow label="Configuration" value={`${sticks} x ${capacity}GB`} {...commonProps} />
-                        <SpecRow label="Speed" value={`${gen} ${mhz} MHz`} {...commonProps} />
-                        <SpecRow label="CAS Latency" value={`CL${cl}`} {...commonProps} />
-                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_config')} value={`${sticks} x ${capacity}GB`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_speed')} value={`${gen} ${mhz} MHz`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_cas')} value={`CL${cl}`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_color')} value={product.color} {...commonProps} />
                     </>
                 );
             case 'Storage':
                 return (
                     <>
-                        <SpecRow label="Capacity" value={`${product.capacity} GB`} {...commonProps} />
-                        <SpecRow label="Drive Type" value={product.type} {...commonProps} />
-                        <SpecRow label="Form Factor" value={product.form_factor} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_capacity')} value={`${product.capacity} GB`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_drive_type')} value={product.type} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_form_factor')} value={product.form_factor} {...commonProps} />
                     </>
                 );
             case 'VideoCard':
                 return (
                     <>
-                        <SpecRow label="Chipset" value={product.chipset} {...commonProps} />
-                        <SpecRow label="VRAM" value={`${product.memory} GB`} {...commonProps} />
-                        <SpecRow label="Length" value={`${product.length} mm`} {...commonProps} />
-                        <SpecRow label="Slots Required" value={product.slots_required} {...commonProps} />
-                        <SpecRow label="TDP" value={`${product.tdp} W`} {...commonProps} />
-                        <SpecRow label="Recommended PSU" value={`${product.recommended_psu_wattage} W`} {...commonProps} />
-                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_chipset')} value={product.chipset} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_vram')} value={`${product.memory} GB`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_length')} value={`${product.length} mm`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_slots_req')} value={product.slots_required} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_tdp')} value={`${product.tdp} W`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_rec_psu')} value={`${product.recommended_psu_wattage} W`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_color')} value={product.color} {...commonProps} />
                     </>
                 );
             case 'Case':
                 return (
                     <>
-                        <SpecRow label="Type" value={product.type} {...commonProps} />
-                        <SpecRow label="Max GPU Length" value={`${product.max_gpu_length} mm`} {...commonProps} />
-                        <SpecRow label="Max Cooler Height" value={`${product.max_cpu_cooler_height} mm`} {...commonProps} />
-                        <SpecRow label="PSU Form Factor" value={product.psu_form_factor} {...commonProps} />
-                        <SpecRow label="Supported Radiators" value={product.supported_radiators?.map(r => `${r}mm`)} {...commonProps} />
-                        <SpecRow label="Side Panel" value={product.sidepanel_material} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_type')} value={product.type} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_max_gpu')} value={`${product.max_gpu_length} mm`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_max_cooler')} value={`${product.max_cpu_cooler_height} mm`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_psu_form')} value={product.psu_form_factor} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_rad_support')} value={product.supported_radiators?.map(r => `${r}mm`)} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_side_panel')} value={product.sidepanel_material} {...commonProps} />
                     </>
                 );
             case 'PowerSupply':
                 return (
                     <>
-                        <SpecRow label="Wattage" value={`${product.wattage} W`} {...commonProps} />
-                        <SpecRow label="Type" value={product.type} {...commonProps} />
-                        <SpecRow label="Efficiency" value={product.efficiency} {...commonProps} />
-                        <SpecRow label="Modular" value={product.modular} {...commonProps} />
-                        <SpecRow label="Color" value={product.color} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_wattage')} value={`${product.wattage} W`} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_type')} value={product.type} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_efficiency')} value={product.efficiency} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_modular')} value={product.modular} {...commonProps} />
+                        <SpecRow label={i18n.t('spec_color')} value={product.color} {...commonProps} />
                     </>
                 );
             default:
-                return <Text style={{ color: colors.textGrey, marginTop: 10 }}>No extended specifications available.</Text>;
+                return <Text style={{ color: colors.textGrey, marginTop: 10 }}>{i18n.t('prod_no_specs')}</Text>;
         }
     };
 
@@ -161,7 +162,7 @@ export default function ProductDetailsScreen() {
         <SafeAreaView style={styles.container}>
             <View style={styles.fixedHeader}>
                 <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <Text style={styles.backBtnText}>← Back to Store</Text>
+                    <Text style={styles.backBtnText}>{i18n.t('prod_back_store')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -178,14 +179,14 @@ export default function ProductDetailsScreen() {
                             <Text style={styles.name}>{product.name}</Text>
                             <Text style={styles.price}>₪{product.price}</Text>
                             <Text style={[styles.stockStatus, { color: product.inStock ? colors.successGreen : colors.errorRed }]}>
-                                {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
+                                {product.inStock ? i18n.t('prod_in_stock') : i18n.t('prod_out_stock')}
                             </Text>
                         </View>
                     </View>
 
                     <View style={styles.specsColumn}>
                         <View style={styles.specsCard}>
-                            <Text style={styles.specsHeader}>Specifications</Text>
+                            <Text style={styles.specsHeader}>{i18n.t('prod_specs_title')}</Text>
                             <View style={styles.divider} />
                             {renderDynamicSpecs()}
                         </View>

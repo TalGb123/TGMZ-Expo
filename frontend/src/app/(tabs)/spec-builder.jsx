@@ -7,16 +7,17 @@ import Questionnaire from "../../components/questionnaire.jsx";
 import { ServerContext } from "../../context/server-context.js";
 import { useStyles, useAppTheme } from "../../context/theme-context.js";
 import { generateSpecBuilderStyles } from "../../constants/SpecBuilderStyle.js";
+import i18n from '../../localization/translation.js';
 
 const hwList = [
-    { id: 1, name: "CPU", dbName: "CPU", schemaKey: "cpu" },
-    { id: 2, name: "CPU Cooler", dbName: "CPUCooler", schemaKey: "cpu_cooler" },
-    { id: 3, name: "Motherboard", dbName: "Motherboard", schemaKey: "motherboard" },
-    { id: 4, name: "RAM", dbName: "Memory", schemaKey: "ram" },
-    { id: 5, name: "Storage", dbName: "Storage", schemaKey: "storage" },
-    { id: 6, name: "Power Supply", dbName: "PowerSupply", schemaKey: "power_supply" },
-    { id: 7, name: "GPU", dbName: "VideoCard", schemaKey: "gpu" },
-    { id: 8, name: "Case", dbName: "Case", schemaKey: "case" }
+    { id: 1, translationKey: "cat_cpu", dbName: "CPU", schemaKey: "cpu" },
+    { id: 2, translationKey: "cat_cooler", dbName: "CPUCooler", schemaKey: "cpu_cooler" },
+    { id: 3, translationKey: "cat_mobo", dbName: "Motherboard", schemaKey: "motherboard" },
+    { id: 4, translationKey: "cat_ram", dbName: "Memory", schemaKey: "ram" },
+    { id: 5, translationKey: "cat_storage", dbName: "Storage", schemaKey: "storage" },
+    { id: 6, translationKey: "cat_psu", dbName: "PowerSupply", schemaKey: "power_supply" },
+    { id: 7, translationKey: "cat_gpu", dbName: "VideoCard", schemaKey: "gpu" },
+    { id: 8, translationKey: "cat_case", dbName: "Case", schemaKey: "case" }
 ];
 
 export default function SpecBuilderScreen() {
@@ -60,10 +61,10 @@ export default function SpecBuilderScreen() {
                 setBuildReasoning("");
                 setHasChanges(false);
                 
-                setMsg("✅ Build Loaded Successfully!");
+                setMsg(i18n.t('spec_msg_load_success'));
             } catch (err) {
                 console.error(err);
-                setMsg("❌ Error loading build.");
+                setMsg(i18n.t('spec_msg_load_error'));
             }
         };
         loadBuild();
@@ -78,7 +79,7 @@ export default function SpecBuilderScreen() {
     const handleGeneratedBuild = (generatedData) => {
         const parts = generatedData.selectedParts;
         if (!parts) {
-            setMsg("❌ Error: No parts found in the generated build.");
+            setMsg(i18n.t('spec_msg_gen_error_empty'));
             return;
         }
 
@@ -92,14 +93,14 @@ export default function SpecBuilderScreen() {
         setSelections(newSelections);
         setBuildReasoning(generatedData.reasoning || "");
         setHasChanges(true);
-        setMsg("✅ Auto-build loaded successfully!");
+        setMsg(i18n.t('spec_msg_gen_success'));
         setIsQuestionnaireActive(false);
     };
 
     const handleSave = async () => {
         if (Object.keys(selections).length === 0) return;
 
-        setMsg("Saving...");
+        setMsg(i18n.t('spec_msg_saving'));
         const payload = {};
         hwList.forEach(item => {
             if (selections[item.id]) {
@@ -109,23 +110,23 @@ export default function SpecBuilderScreen() {
         
         try {
             const res = await server.post('/builds', payload);
-            setMsg(`✅ Saved!`);
+            setMsg(i18n.t('spec_msg_saved'));
             setHasChanges(false);
             router.push(`/build/${res.data.id}`); 
         } catch (err) {
             console.error(err);
-            setMsg("❌ Error saving build.");
+            setMsg(i18n.t('spec_msg_save_error'));
         }
     };
 
     const handleSearch = () => {
         const cleanId = searchId.trim();
         if (!cleanId) {
-            setMsg("⚠️ Please enter a Build ID.");
+            setMsg(i18n.t('spec_msg_err_empty_id'));
             setLoadModalOpen(false);
             return;
         }
-        setMsg("Loading...");
+        setMsg(i18n.t('spec_msg_loading'));
         router.setParams({ editBuildId: cleanId }); 
         setLoadModalOpen(false);
         setSearchId(""); 
@@ -156,14 +157,14 @@ export default function SpecBuilderScreen() {
                             style={[styles.headerBtn, { backgroundColor: colors.primaryAccent }]} 
                             onPress={() => setLoadModalOpen(true)}
                         >
-                            <Text style={[styles.headerBtnText, { color: '#1C1C1E' }]}>Load Existing</Text>
+                            <Text style={[styles.headerBtnText, { color: '#1C1C1E' }]}>{i18n.t('spec_btn_load_existing')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
                             style={[styles.headerBtn, { backgroundColor: colors.textGrey }]} 
                             onPress={() => setIsQuestionnaireActive(true)}
                         >
-                            <Text style={styles.headerBtnText}>Smart Questionnaire</Text>
+                            <Text style={styles.headerBtnText}>{i18n.t('spec_btn_smart_q')}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -180,7 +181,7 @@ export default function SpecBuilderScreen() {
                         const selected = selections[item.id];
                         return (
                             <View key={item.id} style={styles.card}>
-                                <Text style={styles.cardHeader}>{item.name}</Text>
+                                <Text style={styles.cardHeader}>{i18n.t(item.translationKey)}</Text>
                                 <View style={styles.cardBody}>
                                     {selected ? (
                                         <>
@@ -195,16 +196,16 @@ export default function SpecBuilderScreen() {
                                             </View>
                                         </>
                                     ) : (
-                                        <Text style={styles.placeholderText}>None Selected</Text>
+                                        <Text style={styles.placeholderText}>{i18n.t('spec_lbl_none_selected')}</Text>
                                     )}
                                 </View>
                                 <View style={styles.cardFooter}>
                                     <TouchableOpacity style={styles.chooseBtn} onPress={() => setActiveCategory(item.id)}>
-                                        <Text style={styles.chooseBtnText}>{selected ? "Change" : "Choose"}</Text>
+                                        <Text style={styles.chooseBtnText}>{selected ? i18n.t('spec_btn_change') : i18n.t('spec_btn_choose')}</Text>
                                     </TouchableOpacity>
                                     {selected && (
                                         <TouchableOpacity style={styles.clearBtn} onPress={() => handleClear(item.id)}>
-                                            <Text style={styles.clearBtnText}>Clear</Text>
+                                            <Text style={styles.clearBtnText}>{i18n.t('spec_btn_clear')}</Text>
                                         </TouchableOpacity>
                                     )}
                                 </View>
@@ -215,7 +216,7 @@ export default function SpecBuilderScreen() {
             </ScrollView>
 
             <View style={styles.footer}>
-                <Text style={styles.totalText}>Total: ₪{totalPrice}</Text>
+                <Text style={styles.totalText}>{i18n.t('spec_lbl_total')}{totalPrice}</Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     
                     <TouchableOpacity 
@@ -226,15 +227,15 @@ export default function SpecBuilderScreen() {
                         ]} 
                         onPress={() => {
                             if (!user) {
-                                setFooterMsg("You need to be logged in to save builds");
-                                setTimeout(() => setFooterMsg(""), 3500); 
+                                setFooterMsg(i18n.t('spec_msg_login_save'));
+                                setTimeout(() => setFooterMsg(""), 3500);
                             } else if (canSave) {
                                 handleSave();
                             }
                         }}
                         activeOpacity={(!canSave && user) ? 1 : 0.2}
                     >
-                        <Text style={[styles.saveBtnText, (!canSave || !user) && { color: colors.textGrey }]}>💾 Save Build</Text>
+                        <Text style={[styles.saveBtnText, (!canSave || !user) && { color: colors.textGrey }]}>{i18n.t('spec_btn_save_build')}</Text>
                     </TouchableOpacity>
 
                     {buildReasoning ? (
@@ -242,7 +243,7 @@ export default function SpecBuilderScreen() {
                             style={[styles.saveBtn, { flex: 1, backgroundColor: colors.primaryAccent }]} 
                             onPress={() => setIsReasoningModalOpen(true)}
                         >
-                            <Text style={[styles.saveBtnText, { color: '#fff' }]}>🤖 AI Reasoning</Text>
+                            <Text style={[styles.saveBtnText, { color: '#fff' }]}>{i18n.t('spec_btn_ai_reasoning')}</Text>
                         </TouchableOpacity>
                     ) : null}
                 </View>
@@ -255,9 +256,9 @@ export default function SpecBuilderScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Choose {activeCategoryName}</Text>
+                            <Text style={styles.modalTitle}>{i18n.t('spec_title_choose')}{activeCategoryName}</Text>
                             <TouchableOpacity onPress={() => setActiveCategory(null)}>
-                                <Text style={styles.closeModalText}>Close</Text>
+                                <Text style={styles.closeModalText}>{i18n.t('spec_btn_close')}</Text>
                             </TouchableOpacity>
                         </View>
                         <CategoryList category={hwList.find(c => c.id === activeCategory)?.dbName} onSelect={handleSelect} selections={selections} />
@@ -269,9 +270,9 @@ export default function SpecBuilderScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Smart Questionnaire</Text>
+                            <Text style={styles.modalTitle}>{i18n.t('spec_btn_smart_q')}</Text>
                             <TouchableOpacity onPress={() => setIsQuestionnaireActive(false)}>
-                                <Text style={styles.closeModalText}>Close</Text>
+                                <Text style={styles.closeModalText}>{i18n.t('spec_btn_close')}</Text>
                             </TouchableOpacity>
                         </View>
                         {isQuestionnaireActive && <Questionnaire onClose={() => setIsQuestionnaireActive(false)} onBuildGenerated={handleGeneratedBuild} />}
@@ -283,9 +284,9 @@ export default function SpecBuilderScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { height: '60%' }]}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>🤖 AI Build Reasoning</Text>
+                            <Text style={styles.modalTitle}>{i18n.t('spec_title_ai_reasoning')}</Text>
                             <TouchableOpacity onPress={() => setIsReasoningModalOpen(false)}>
-                                <Text style={styles.closeModalText}>Close</Text>
+                                <Text style={styles.closeModalText}>{i18n.t('spec_btn_close')}</Text>
                             </TouchableOpacity>
                         </View>
                         <ScrollView showsVerticalScrollIndicator={false}>
@@ -298,20 +299,20 @@ export default function SpecBuilderScreen() {
             <Modal visible={isLoadModalOpen} transparent animationType="fade" onRequestClose={() => setLoadModalOpen(false)}>
                 <View style={[styles.modalOverlay, { justifyContent: 'center', padding: 20 }]}>
                     <View style={styles.smallModalContent}>
-                        <Text style={styles.modalTitle}>Load Existing Build</Text>
+                        <Text style={styles.modalTitle}>{i18n.t('spec_title_load_build')}</Text>
                         <TextInput
                             style={styles.modalInput}
-                            placeholder="Enter Build ID..."
+                            placeholder={i18n.t('spec_placeholder_build_id')}
                             placeholderTextColor={colors.textGrey}
                             value={searchId}
                             onChangeText={setSearchId}
                         />
                         <View style={styles.modalActions}>
                             <TouchableOpacity style={[styles.modalBtn, styles.modalCancelBtn]} onPress={() => setLoadModalOpen(false)}>
-                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>Cancel</Text>
+                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>{i18n.t('spec_btn_cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalBtn, styles.modalSubmitBtn]} onPress={handleSearch}>
-                                <Text style={{ color: '#1C1C1E', fontWeight: 'bold' }}>Load</Text>
+                                <Text style={{ color: '#1C1C1E', fontWeight: 'bold' }}>{i18n.t('spec_btn_load')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

@@ -6,16 +6,17 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ServerContext } from "../../context/server-context";
 import { useStyles, useAppTheme } from "../../context/theme-context";
 import { generateSummaryStyles } from "../../constants/SummaryStyle";
+import i18n from '../../localization/translation.js';
 
 const hwList = [
-    { schemaKey: "cpu", name: "CPU" },
-    { schemaKey: "cpu_cooler", name: "CPU Cooler" },
-    { schemaKey: "motherboard", name: "Motherboard" },
-    { schemaKey: "ram", name: "RAM" },
-    { schemaKey: "storage", name: "Storage" },
-    { schemaKey: "power_supply", name: "Power Supply" },
-    { schemaKey: "gpu", name: "GPU" },
-    { schemaKey: "case", name: "Case" },
+    { schemaKey: "cpu", translationKey: "cat_cpu" },
+    { schemaKey: "cpu_cooler", translationKey: "cat_cooler" },
+    { schemaKey: "motherboard", translationKey: "cat_mobo" },
+    { schemaKey: "ram", translationKey: "cat_ram" },
+    { schemaKey: "storage", translationKey: "cat_storage" },
+    { schemaKey: "power_supply", translationKey: "cat_psu" },
+    { schemaKey: "gpu", translationKey: "cat_gpu" },
+    { schemaKey: "case", translationKey: "cat_case" },
 ];
 
 export default function BuildSummaryScreen() {
@@ -42,7 +43,7 @@ export default function BuildSummaryScreen() {
                 setBuild(res.data);
                 setBuildName(`Build #${res.data.buildID}`);
             } catch {
-                setError("Build not found or invalid ID.");
+                setError(i18n.t('sum_err_not_found'));
             } finally {
                 setLoading(false);
             }
@@ -64,7 +65,7 @@ export default function BuildSummaryScreen() {
                 <MaterialCommunityIcons name="alert-circle-outline" size={60} color={colors.errorRed} style={{ marginBottom: 15 }} />
                 <Text style={styles.errorText}>{error}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primaryAccent, fontSize: 16 }}>Go Back</Text>
+                    <Text style={{ color: colors.primaryAccent, fontSize: 16 }}>{i18n.t('sum_btn_go_back')}</Text>
                 </TouchableOpacity>
             </SafeAreaView>
         );
@@ -72,7 +73,7 @@ export default function BuildSummaryScreen() {
 
     const parts = hwList
         .filter(h => build[h.schemaKey])
-        .map(h => ({ category: h.name, ...build[h.schemaKey] }));
+        .map(h => ({ category: i18n.t(h.translationKey), ...build[h.schemaKey] }));
 
     const total = parts.reduce((sum, p) => sum + (p.price || 0), 0);
 
@@ -86,10 +87,10 @@ export default function BuildSummaryScreen() {
             if (response.status === 200) {
                 setUser(response.data.user);
                 setModalVisible(false);
-                Alert.alert("Success", "Build saved to your profile!");
+                Alert.alert(i18n.t('common_success'), i18n.t('sum_msg_saved'));
             }
         } catch (error) {
-            Alert.alert("Error", error.response?.data?.message || "Failed to save build.");
+            Alert.alert(i18n.t('prof_alert_error'), error.response?.data?.message || i18n.t('sum_err_save'));
         } finally {
             setSaving(false);
         }
@@ -101,7 +102,7 @@ export default function BuildSummaryScreen() {
                 <TouchableOpacity onPress={() => router.back()}>
                     <MaterialCommunityIcons name="arrow-left" size={28} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Build #{build.buildID}</Text>
+                <Text style={styles.title}>{i18n.t('sum_title_build')}{build.buildID}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.listContainer}>
@@ -118,7 +119,7 @@ export default function BuildSummaryScreen() {
 
             <View style={styles.footer}>
                 <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>Total Estimated Cost:</Text>
+                    <Text style={styles.totalLabel}>{i18n.t('sum_lbl_total')}</Text>
                     <Text style={styles.totalValue}>₪{total}</Text>
                 </View>
                 
@@ -127,7 +128,7 @@ export default function BuildSummaryScreen() {
                         style={[styles.actionBtn, { backgroundColor: colors.background }]} 
                         onPress={() => router.push(`/(tabs)/spec-builder?editBuildId=${build.buildID}`)}
                     >
-                        <Text style={styles.actionBtnText}>Edit Build</Text>
+                        <Text style={styles.actionBtnText}>{i18n.t('sum_btn_edit')}</Text>
                     </TouchableOpacity>
 
                     {user && (
@@ -135,7 +136,7 @@ export default function BuildSummaryScreen() {
                             style={[styles.actionBtn, styles.saveProfileBtn]} 
                             onPress={() => setModalVisible(true)}
                         >
-                            <Text style={[styles.actionBtnText, styles.saveProfileBtnText]}>💾 Save to Profile</Text>
+                            <Text style={[styles.actionBtnText, styles.saveProfileBtnText]}>{i18n.t('sum_btn_save_profile')}</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -145,21 +146,21 @@ export default function BuildSummaryScreen() {
             <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Save Build to Profile</Text>
+                        <Text style={styles.modalTitle}>{i18n.t('sum_modal_title')}</Text>
                         <TextInput
                             style={styles.modalInput}
                             value={buildName}
                             onChangeText={setBuildName}
-                            placeholder="Enter a name for this build"
+                            placeholder={i18n.t('sum_modal_placeholder')}
                             placeholderTextColor={colors.textGrey}
                             autoFocus
                         />
                         <View style={styles.modalActions}>
                             <TouchableOpacity style={[styles.modalBtn, styles.modalCancelBtn]} onPress={() => setModalVisible(false)}>
-                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>Cancel</Text>
+                                <Text style={{ color: colors.textMain, fontWeight: 'bold' }}>{i18n.t('spec_btn_cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalBtn, styles.modalSaveBtn]} onPress={handleSaveToProfile} disabled={saving}>
-                                {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Save</Text>}
+                                {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: 'bold' }}>{i18n.t('common_save')}</Text>}
                             </TouchableOpacity>
                         </View>
                     </View>

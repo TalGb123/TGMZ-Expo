@@ -4,6 +4,7 @@ import { ServerContext } from '../context/server-context.js';
 import { useStyles } from '../context/theme-context.js';
 import { useRouter } from 'expo-router';
 import { generateCategoryListStyles } from '../constants/CategoryListStyle.js';
+import i18n from '../localization/translation.js';
 
 const normalizePart = (p) => {
     const clone = { ...p };
@@ -24,60 +25,60 @@ const normalizePart = (p) => {
 
 const FILTERS = {
     CPU: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "socket", type: "select", label: "Socket" },
-        { key: "supported_memory", type: "select", label: "Memory" },
-        { key: "has_apu", type: "select", label: "Has APU" },
-        { key: "tdp", type: "range", label: "TDP (W)" },
-        { key: "core_clock", type: "range", label: "Clock (GHz)" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "socket", type: "select", translationKey: "spec_socket" },
+        { key: "supported_memory", type: "select", translationKey: "catlist_lbl_memory" },
+        { key: "has_apu", type: "select", translationKey: "inv_prop_has_apu" },
+        { key: "tdp", type: "range", translationKey: "inv_prop_tdp" },
+        { key: "core_clock", type: "range", translationKey: "catlist_lbl_clock" },
     ],
     CPUCooler: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "type", type: "select", label: "Type" },
-        { key: "radiator_size", type: "select", label: "Radiator Size (mm)" },
-        { key: "supported_sockets", type: "select", label: "Supported Sockets" },
-        { key: "height", type: "range", label: "Height (mm)" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "type", type: "select", translationKey: "spec_type" },
+        { key: "radiator_size", type: "select", translationKey: "catlist_lbl_rad_size" },
+        { key: "supported_sockets", type: "select", translationKey: "inv_prop_supp_sockets" },
+        { key: "height", type: "range", translationKey: "inv_prop_height" },
     ],
     Motherboard: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "socket", type: "select", label: "Socket" },
-        { key: "form_factor", type: "select", label: "Form Factor" },
-        { key: "memory_gen", type: "select", label: "Memory Generation" },
-        { key: "has_wifi_bluetooth", type: "select", label: "Bluetooth & Wifi" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "socket", type: "select", translationKey: "spec_socket" },
+        { key: "form_factor", type: "select", translationKey: "spec_form_factor" },
+        { key: "memory_gen", type: "select", translationKey: "spec_mem_gen" },
+        { key: "has_wifi_bluetooth", type: "select", translationKey: "inv_prop_bt_wifi" },
     ],
     Memory: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "ddrGen", type: "select", label: "DDR Generation" },
-        { key: "speedMain", type: "select", label: "Speed (MHz)" },
-        { key: "modulesLabel", type: "select", label: "Modules" },
-        { key: "cas_latency", type: "range", label: "CAS Latency" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "ddrGen", type: "select", translationKey: "catlist_lbl_ddr" },
+        { key: "speedMain", type: "select", translationKey: "inv_prop_speed" },
+        { key: "modulesLabel", type: "select", translationKey: "catlist_lbl_modules" },
+        { key: "cas_latency", type: "range", translationKey: "spec_cas" },
     ],
     Storage: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "capacity", type: "select", label: "Capacity (GB)" },
-        { key: "drive_type", type: "select", label: "Type" },
-        { key: "form_factor", type: "select", label: "Form Factor" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "capacity", type: "select", translationKey: "inv_prop_capacity" },
+        { key: "drive_type", type: "select", translationKey: "spec_drive_type" },
+        { key: "form_factor", type: "select", translationKey: "spec_form_factor" },
     ],
     PowerSupply: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "wattage", type: "range", label: "Wattage (W)" },
-        { key: "efficiency", type: "select", label: "Efficiency" },
-        { key: "type", type: "select", label: "Type" },
-        { key: "modular", type: "select", label: "Modular" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "wattage", type: "range", translationKey: "inv_prop_wattage" },
+        { key: "efficiency", type: "select", translationKey: "spec_efficiency" },
+        { key: "type", type: "select", translationKey: "spec_type" },
+        { key: "modular", type: "select", translationKey: "spec_modular" },
     ],
     VideoCard: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "chipset", type: "select", label: "Chipset" },
-        { key: "memory", type: "select", label: "Memory (GB)" },
-        { key: "tdp", type: "range", label: "TDP (W)" },
-        { key: "length", type: "range", label: "Length (mm)" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "chipset", type: "select", translationKey: "spec_chipset" },
+        { key: "memory", type: "select", translationKey: "inv_prop_memory_gb" },
+        { key: "tdp", type: "range", translationKey: "inv_prop_tdp" },
+        { key: "length", type: "range", translationKey: "inv_prop_length" },
     ],
     Case: [
-        { key: "brand", type: "select", label: "Brand" },
-        { key: "type", type: "select", label: "Type" },
-        { key: "supported_mobo_form_factors", type: "select", label: "Mobo Sizes" },
-        { key: "max_gpu_length", type: "range", label: "Max GPU Length (mm)" },
-        { key: "psu_form_factor", type: "select", label: "PSU Form Factor" },
+        { key: "brand", type: "select", translationKey: "inv_prop_brand" },
+        { key: "type", type: "select", translationKey: "spec_type" },
+        { key: "supported_mobo_form_factors", type: "select", translationKey: "catlist_lbl_mobo_sizes" },
+        { key: "max_gpu_length", type: "range", translationKey: "catlist_lbl_max_gpu" },
+        { key: "psu_form_factor", type: "select", translationKey: "spec_psu_form" },
     ],
 };
 
@@ -150,7 +151,7 @@ export default function CategoryList({ category, onSelect }) {
             setError(null);
         } catch (err) {
             console.error("Fetch error:", err);
-            setError("Could not load parts from server. Check your connection.");
+            setError(i18n.t('catlist_err_fetch'));
         } finally {
             setLoading(false);
         }
@@ -188,11 +189,11 @@ export default function CategoryList({ category, onSelect }) {
                         style={[styles.addBtn, { flex: 1, backgroundColor: '#6c757d' }]} 
                         onPress={() => router.push(`/product/${item._id}`)}
                     >
-                        <Text style={styles.addBtnText}>View Details</Text>
+                        <Text style={styles.addBtnText}>{i18n.t('catlist_view_details')}</Text>
                     </TouchableOpacity>
                     
                     <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
-                        <Text style={styles.addBtnText}>Add to PC</Text>
+                        <Text style={styles.addBtnText}>{i18n.t('catlist_add_pc')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -203,7 +204,7 @@ export default function CategoryList({ category, onSelect }) {
         <View style={styles.container}>
             <TouchableOpacity style={styles.filterToggleBtn} onPress={() => setShowFilters(!showFilters)}>
                 <Text style={styles.filterToggleText}>
-                    {showFilters ? "Hide Advanced Filters ⌃" : "Show Advanced Filters & Sorting ⌄"}
+                    {showFilters ? i18n.t('catlist_hide_filters') : i18n.t('catlist_show_filters')}
                 </Text>
             </TouchableOpacity>
 
@@ -212,7 +213,7 @@ export default function CategoryList({ category, onSelect }) {
                     {/* Basic Name & Price */}
                     <TextInput 
                         style={styles.input} 
-                        placeholder="Search by name..." 
+                        placeholder={i18n.t('inventory_search')} 
                         placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
@@ -220,7 +221,7 @@ export default function CategoryList({ category, onSelect }) {
                     <View style={styles.row}>
                         <TextInput 
                             style={[styles.input, styles.halfInput]} 
-                            placeholder="Min Price (₪)" 
+                            placeholder={i18n.t('catlist_min_price')}
                             placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
                             keyboardType="numeric"
                             value={advFilters.minPrice}
@@ -228,7 +229,7 @@ export default function CategoryList({ category, onSelect }) {
                         />
                         <TextInput 
                             style={[styles.input, styles.halfInput]} 
-                            placeholder="Max Price (₪)" 
+                            placeholder={i18n.t('catlist_max_price')}
                             placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
                             keyboardType="numeric"
                             value={advFilters.maxPrice}
@@ -239,10 +240,10 @@ export default function CategoryList({ category, onSelect }) {
                     {/* Sorting */}
                     <View style={styles.row}>
                         <TouchableOpacity style={[styles.sortBtn, sortBy === 'price-asc' && styles.activeSort]} onPress={() => setSortBy('price-asc')}>
-                            <Text style={[styles.sortText, sortBy === 'price-asc' && styles.activeSortText]}>Price: Low to High</Text>
+                            <Text style={[styles.sortText, sortBy === 'price-asc' && styles.activeSortText]}>{i18n.t('catlist_sort_asc')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.sortBtn, sortBy === 'price-desc' && styles.activeSort]} onPress={() => setSortBy('price-desc')}>
-                            <Text style={[styles.sortText, sortBy === 'price-desc' && styles.activeSortText]}>Price: High to Low</Text>
+                            <Text style={[styles.sortText, sortBy === 'price-desc' && styles.activeSortText]}>{i18n.t('catlist_sort_desc')}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -254,11 +255,11 @@ export default function CategoryList({ category, onSelect }) {
                             if (f.type === "range") {
                                 return (
                                     <View key={f.key} style={styles.filterSection}>
-                                        <Text style={styles.filterLabel}>{f.label}</Text>
+                                        <Text style={styles.filterLabel}>{i18n.t(f.translationKey)}</Text>
                                         <View style={styles.row}>
                                             <TextInput
                                                 style={[styles.input, styles.halfInput, { marginBottom: 0 }]}
-                                                placeholder="Min"
+                                                placeholder={i18n.t('catlist_min')}
                                                 keyboardType="numeric"
                                                 placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
                                                 value={advFilters.values[`${f.key}Min`] || ""}
@@ -266,7 +267,7 @@ export default function CategoryList({ category, onSelect }) {
                                             />
                                             <TextInput
                                                 style={[styles.input, styles.halfInput, { marginBottom: 0 }]}
-                                                placeholder="Max"
+                                                placeholder={i18n.t('catlist_max')}
                                                 keyboardType="numeric"
                                                 placeholderTextColor={StyleSheet.flatten(styles.input).color === '#fff' ? '#888' : '#aaa'}
                                                 value={advFilters.values[`${f.key}Max`] || ""}
@@ -278,7 +279,7 @@ export default function CategoryList({ category, onSelect }) {
                             } else if (f.type === "select") {
                                 return (
                                     <View key={f.key} style={styles.filterSection}>
-                                        <Text style={styles.filterLabel}>{f.label}</Text>
+                                        <Text style={styles.filterLabel}>{i18n.t(f.translationKey)}</Text>
                                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
                                             {(globalOptions[f.key] || []).map(opt => {
                                                 const isActive = advFilters.values[f.key] === opt.toString();
@@ -310,7 +311,7 @@ export default function CategoryList({ category, onSelect }) {
                             setAdvFilters({ minPrice: "", maxPrice: "", values: {} });
                         }}
                     >
-                        <Text style={styles.clearBtnText}>Clear All Filters</Text>
+                        <Text style={styles.clearBtnText}>{i18n.t('catlist_clear_filters')}</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -321,7 +322,7 @@ export default function CategoryList({ category, onSelect }) {
             ) : error ? (
                 <Text style={styles.errorText}>{error}</Text>
             ) : parts.length === 0 ? (
-                <Text style={styles.emptyText}>No parts found matching these filters.</Text>
+                <Text style={styles.emptyText}>{i18n.t('catlist_no_parts')}</Text>
             ) : (
                 <FlatList
                     data={parts}
