@@ -127,7 +127,7 @@ const SavedBuildCard = ({ savedBuild, server, user, setUser, colors, styles, rou
                     </View>
 
                     <View style={styles.buildActions}>
-                        <TouchableOpacity style={[styles.buildBtn, { backgroundColor: colors.primaryAccent }]} onPress={() => router.push('/(tabs)/spec-builder')}>
+                        <TouchableOpacity style={[styles.buildBtn, { backgroundColor: colors.primaryAccent }]} onPress={() => router.push(`/(tabs)/spec-builder?editBuildId=${buildData.buildID}`)}>
                             <Text style={styles.buildBtnText}>{i18n.t('prof_btn_view')}</Text>
                         </TouchableOpacity>
                         {!isEditing && (

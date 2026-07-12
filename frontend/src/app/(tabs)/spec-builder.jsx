@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Modal } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import CategoryList from "../../components/category-list.jsx";
 import Questionnaire from "../../components/questionnaire.jsx"; 
 import { ServerContext } from "../../context/server-context.js";
@@ -42,33 +42,36 @@ export default function SpecBuilderScreen() {
     const [hasChanges, setHasChanges] = useState(false);
     const [footerMsg, setFooterMsg] = useState("");
 
-    useEffect(() => {
-        const editId = params.editBuildId;
-        if (!editId) return;
+    useFocusEffect(
+        useCallback(() => {
+            const editId = params.editBuildId;
+            if (!editId) return;
 
-        const loadBuild = async () => {
-            try {
-                const res = await server.get(`/builds/${editId}`);
-                const buildData = res.data;
-                const newSelections = {};
-                hwList.forEach(item => {
-                    if (buildData[item.schemaKey]) {
-                        newSelections[item.id] = buildData[item.schemaKey];
-                    }
-                });
-                setSelections(newSelections);
-                
-                setBuildReasoning("");
-                setHasChanges(false);
-                
-                setMsg(i18n.t('spec_msg_load_success'));
-            } catch (err) {
-                console.error(err);
-                setMsg(i18n.t('spec_msg_load_error'));
-            }
-        };
-        loadBuild();
-    }, [params.editBuildId, server]);
+            const loadBuild = async () => {
+                try {
+                    const res = await server.get(`/builds/${editId}`);
+                    const buildData = res.data;
+                    const newSelections = {};
+                    hwList.forEach(item => {
+                        if (buildData[item.schemaKey]) {
+                            newSelections[item.id] = buildData[item.schemaKey];
+                        }
+                    });
+                    setSelections(newSelections);
+                    setBuildReasoning("");
+                    setHasChanges(false);
+                    setMsg(i18n.t('spec_msg_load_success'));
+                    
+                    router.setParams({ editBuildId: "" });
+                    
+                } catch (err) {
+                    console.error(err);
+                    setMsg(i18n.t('spec_msg_load_error'));
+                }
+            };
+            loadBuild();
+        }, [params.editBuildId, server])
+    );
 
     const handleSelect = (part) => {
         setSelections(prev => ({ ...prev, [activeCategory]: part }));
