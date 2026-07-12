@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { ServerContext } from '../context/server-context.js';
-import { useStyles } from '../context/theme-context.js';
+import { useStyles, useAppTheme } from '../context/theme-context.js';
 import { useRouter } from 'expo-router';
 import { generateCategoryListStyles } from '../constants/CategoryListStyle.js';
 import i18n from '../localization/translation.js';
+import { checkCompatibility } from '../utils/compatibility.js';
 
 const normalizePart = (p) => {
     const clone = { ...p };
@@ -82,8 +83,9 @@ const FILTERS = {
     ],
 };
 
-export default function CategoryList({ category, onSelect }) {
+export default function CategoryList({ category, onSelect, selections = {} }) {
     const styles = useStyles(generateCategoryListStyles);
+    const { colors } = useAppTheme();
     const router = useRouter();
     const { server } = useContext(ServerContext);
     
@@ -174,36 +176,95 @@ export default function CategoryList({ category, onSelect }) {
         });
     };
 
-    const renderPart = ({ item }) => (
-        <View style={styles.card}>
-            <Image 
-                source={{ uri: item.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png" }} 
-                style={styles.image} 
-                resizeMode="contain"
-            />
-            <View style={styles.details}>
-                <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
-                <Text style={styles.price}>₪{item.price}</Text>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
+    const processedParts = useMemo(() => {
+        if (!parts) return [];
+        
+        return parts.map(part => {
+            // If we are in the Store (no onSelect passed)
+            if (!onSelect || Object.keys(selections).length === 0) {
+                return { ...part, isCompatible: true, isWarning: false, reason: null };
+            }
+            
+            // If we are in the Spec Builder, run compatibility checks
+            const compat = checkCompatibility(part, selections);
+            return { ...part, ...compat };
+
+        }).sort((a, b) => {
+            // Sort: Clean (1) -> Warning (2) -> Error (3)
+            const getScore = (p) => {
+                if (!p.isCompatible) return 3;
+                if (p.isWarning) return 2;
+                return 1;
+            };
+            return getScore(a) - getScore(b);
+        });
+    }, [parts, selections, onSelect]);
+
+    const renderPart = ({ item }) => {
+        // Default styling
+        let bgColor = "transparent";
+        let borderColor = "transparent";
+        let icon = null;
+        let textColor = colors.textGrey;
+
+        // Apply Red Error Styles
+        if (!item.isCompatible) {
+            bgColor = 'rgba(255, 0, 0, 0.05)';
+            borderColor = colors.errorRed;
+            textColor = colors.errorRed;
+            icon = "❌";
+        } 
+        // Apply Yellow Warning Styles
+        else if (item.isWarning) {
+            bgColor = 'rgba(255, 165, 0, 0.1)';
+            borderColor = '#d97706'; // Dark amber/yellow
+            textColor = '#d97706';
+            icon = "⚠️";
+        }
+
+        return (
+            <View style={[styles.card, { backgroundColor: bgColor, borderColor: borderColor, borderWidth: borderColor !== "transparent" ? 1 : 0 }]}>
+                <Image 
+                    source={{ uri: item.image || "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png" }} 
+                    style={styles.image} 
+                    resizeMode="contain"
+                />
+                <View style={styles.details}>
                     
-                    <TouchableOpacity 
-                        style={[styles.addBtn, { flex: 1, backgroundColor: '#6c757d' }]} 
-                        onPress={() => router.push(`/product/${item._id}`)}
-                    >
-                        <Text style={styles.addBtnText}>{i18n.t('catlist_view_details')}</Text>
-                    </TouchableOpacity>
-                    
-                    {/* This ensures the button only renders if onSelect exists */}
-                    {onSelect && (
-                        <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
-                            <Text style={styles.addBtnText}>{i18n.t('catlist_add_pc')}</Text>
-                        </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                        <Text style={[styles.name, { flex: 1 }]} numberOfLines={2}>{item.name}</Text>
+                        {icon && <Text style={{ fontSize: 16, marginLeft: 5 }}>{icon}</Text>}
+                    </View>
+
+                    <Text style={styles.price}>₪{item.price}</Text>
+
+                    {/* Show explicit compatibility reason on mobile since we don't have tooltips */}
+                    {item.reason && (
+                        <Text style={{ fontSize: 12, color: textColor, marginTop: 4, marginBottom: 8, fontWeight: '500' }}>
+                            {item.reason}
+                        </Text>
                     )}
-                    
+
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: item.reason ? 0 : 8 }}>
+                        <TouchableOpacity 
+                            style={[styles.addBtn, { flex: 1, backgroundColor: '#6c757d' }]} 
+                            onPress={() => router.push(`/product/${item._id}`)}
+                        >
+                            <Text style={styles.addBtnText}>{i18n.t('catlist_view_details')}</Text>
+                        </TouchableOpacity>
+                        
+                        {/* Only show "Add to PC" if accessed from the Spec Builder */}
+                        {onSelect && (
+                            <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
+                                <Text style={styles.addBtnText}>{i18n.t('catlist_add_pc')}</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
                 </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -326,11 +387,11 @@ export default function CategoryList({ category, onSelect }) {
                 <ActivityIndicator size="large" color="#007AFF" style={styles.center} />
             ) : error ? (
                 <Text style={styles.errorText}>{error}</Text>
-            ) : parts.length === 0 ? (
+            ) : processedParts.length === 0 ? (
                 <Text style={styles.emptyText}>{i18n.t('catlist_no_parts')}</Text>
             ) : (
                 <FlatList
-                    data={parts}
+                    data={processedParts}
                     keyExtractor={(item, index) => item._id || index.toString()}
                     renderItem={renderPart}
                     contentContainerStyle={styles.listContainer}
