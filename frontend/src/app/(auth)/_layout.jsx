@@ -8,7 +8,7 @@ export default function AuthLayout() {
         <Stack screenOptions={{
             headerStyle: { backgroundColor: colors.background },
             headerTintColor: colors.textMain,
-            headerShadowVisible: false, // Cleaner look
+            headerShadowVisible: false,
         }}>
             <Stack.Screen name="login" options={{ title: 'Sign In' }} />
             <Stack.Screen name="register" options={{ title: 'Create Account' }} />

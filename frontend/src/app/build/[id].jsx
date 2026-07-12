@@ -7,6 +7,7 @@ import { ServerContext } from "../../context/server-context";
 import { useStyles, useAppTheme } from "../../context/theme-context";
 import { generateSummaryStyles } from "../../constants/SummaryStyle";
 import i18n from '../../localization/translation.js';
+import * as Speech from 'expo-speech';
 
 const hwList = [
     { schemaKey: "cpu", translationKey: "cat_cpu" },
@@ -31,10 +32,10 @@ export default function BuildSummaryScreen() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
-    // Save Modal State
     const [isModalVisible, setModalVisible] = useState(false);
     const [buildName, setBuildName] = useState("");
     const [saving, setSaving] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
 
     useEffect(() => {
         const fetchBuild = async () => {
@@ -96,13 +97,51 @@ export default function BuildSummaryScreen() {
         }
     };
 
+    const handleToggleSpeech = async () => {
+        const currentlySpeaking = await Speech.isSpeakingAsync();
+
+        if (currentlySpeaking || isSpeaking) {
+            Speech.stop();
+            setIsSpeaking(false);
+            return; 
+        }
+
+        let textToRead = `Build number ${build.buildID}. `;
+        
+        parts.forEach(p => {
+            textToRead += `${p.category}: ${p.name}, ${p.price} shekels. `;
+        });
+        
+        textToRead += `Total estimated cost is ${total} shekels.`;
+
+        setIsSpeaking(true);
+
+        Speech.speak(textToRead, {
+            language: 'en',
+            rate: 0.9,
+            onDone: () => setIsSpeaking(false),     
+            onStopped: () => setIsSpeaking(false),  
+            onError: () => setIsSpeaking(false)     
+        });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <MaterialCommunityIcons name="arrow-left" size={28} color={colors.textMain} />
+            <View style={[styles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <MaterialCommunityIcons name="arrow-left" size={28} color={colors.textMain} />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Build #{build.buildID}</Text>
+                </View>
+                
+                <TouchableOpacity onPress={handleToggleSpeech} style={{ padding: 5 }}>
+                    <MaterialCommunityIcons 
+                        name={isSpeaking ? "stop-circle-outline" : "volume-high"} 
+                        size={28} 
+                        color={isSpeaking ? colors.errorRed : colors.primaryAccent} 
+                    />
                 </TouchableOpacity>
-                <Text style={styles.title}>{i18n.t('sum_title_build')}{build.buildID}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.listContainer}>

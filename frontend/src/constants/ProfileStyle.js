@@ -4,14 +4,12 @@ export const generateProfileStyles = (colors) => ({
     landscapeRow: { flexDirection: 'row', gap: 30 },
     landscapeCol: { flex: 1 },
     
-    // Segmented Control
     segmentContainer: { flexDirection: 'row', margin: 20, marginBottom: 0, backgroundColor: colors.cardBackground, borderRadius: 12, padding: 4, borderWidth: 1, borderColor: colors.borderColor },
     segmentBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 8 },
     segmentBtnActive: { backgroundColor: colors.background, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
     segmentText: { color: colors.textGrey, fontWeight: '600' },
     segmentTextActive: { color: colors.textMain },
     
-    // Form Sections
     sectionContainer: { marginBottom: 20 },
     sectionHeader: { fontSize: 22, fontWeight: 'bold', color: colors.textMain, marginBottom: 20, marginTop: 10 },
     inputContainer: { marginBottom: 15 },
@@ -23,7 +21,6 @@ export const generateProfileStyles = (colors) => ({
     saveBtn: { backgroundColor: colors.primaryAccent, paddingVertical: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
     saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
     
-    // Build Cards
     buildCard: { backgroundColor: colors.cardBackground, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: colors.borderColor, overflow: 'hidden' },
     buildCardHeader: { padding: 15, borderBottomWidth: 1, borderBottomColor: colors.borderColor },
     buildTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -43,7 +40,6 @@ export const generateProfileStyles = (colors) => ({
     buildBtnText: { fontSize: 14, fontWeight: '600', color: '#FFF' },
     emptyText: { color: colors.textGrey, textAlign: 'center', marginTop: 20, fontStyle: 'italic' },
     
-    // Guest View
     guestContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, backgroundColor: colors.background },
     guestTitle: { fontSize: 24, fontWeight: 'bold', color: colors.textMain, marginBottom: 10 },
     guestSubtitle: { fontSize: 16, color: colors.textGrey, textAlign: 'center', marginBottom: 30, lineHeight: 22 },

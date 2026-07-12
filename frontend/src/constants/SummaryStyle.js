@@ -80,7 +80,6 @@ export const generateSummaryStyles = (colors) => ({
     },
     saveProfileBtnText: { color: '#1C1C1E' },
 
-    // Modal Styles
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',

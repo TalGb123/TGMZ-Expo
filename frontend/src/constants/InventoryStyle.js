@@ -17,7 +17,6 @@ export const generateInventoryStyles = (colors) => ({
         textAlign: 'center'
     },
     
-    // Header & Controls
     header: {
         padding: 15,
         backgroundColor: colors.cardBackground,
@@ -59,7 +58,6 @@ export const generateInventoryStyles = (colors) => ({
         paddingBottom: 5
     },
     
-    // Product List
     listContainer: {
         padding: 15,
         paddingBottom: 40
@@ -115,7 +113,6 @@ export const generateInventoryStyles = (colors) => ({
         borderColor: colors.errorRed
     },
 
-    // Modal Form Styles
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',
@@ -145,7 +142,6 @@ export const generateInventoryStyles = (colors) => ({
         fontSize: 16
     },
     
-    // Form Inputs
     formGroup: {
         marginBottom: 18
     },
@@ -165,7 +161,6 @@ export const generateInventoryStyles = (colors) => ({
         fontSize: 15
     },
     
-    // Selectors & Pills (Mobile alternative to <select> and <datalist>)
     pillContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -193,7 +188,6 @@ export const generateInventoryStyles = (colors) => ({
         fontWeight: 'bold'
     },
     
-    // Connection Builder
     connectionRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -216,7 +210,6 @@ export const generateInventoryStyles = (colors) => ({
         fontSize: 14
     },
     
-    // Form Actions
     modalActionRow: {
         flexDirection: 'row',
         gap: 15,

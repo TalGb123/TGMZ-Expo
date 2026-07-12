@@ -4,7 +4,7 @@ const SavedBuildSchema = new mongoose.Schema({
     buildRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Build' },
     buildName: { type: String, required: true },
     savedAt: { type: Date, default: Date.now }
-}, { _id: false }); // Prevent Mongoose from making a sub-ID for each array item
+}, { _id: false });
 
 const UserSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true }, 
@@ -13,8 +13,9 @@ const UserSchema = new mongoose.Schema({
     phone: { type: String, required: false },
     birthday: { type: String, required: false },
     password: { type: String, required: true },
+    avatar: { type: String, required: false },
     isAdmin: { type: Boolean, default: false },
-    savedBuilds: [SavedBuildSchema] // Updated to array of objects
+    savedBuilds: [SavedBuildSchema]
 });
 
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);

@@ -32,7 +32,6 @@ export default function TabsLayout() {
             },
             tabBarActiveTintColor: colors.primaryAccent,
             tabBarInactiveTintColor: colors.textGrey,
-            // Dynamically show logout button if user exists
             headerRight: () => user ? (
                 <TouchableOpacity onPress={handleLogout} style={{ marginRight: 20 }}>
                     <MaterialCommunityIcons name="logout" size={24} color={colors.errorRed} />

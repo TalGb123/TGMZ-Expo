@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { 
     View, Text, TextInput, TouchableOpacity, ScrollView, 
     KeyboardAvoidingView, Platform, TouchableWithoutFeedback, 
-    Keyboard, ActivityIndicator, Alert 
+    Keyboard, ActivityIndicator, Alert, Image
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { ServerContext } from '../../context/server-context';
 import { useStyles, useAppTheme } from '../../context/theme-context';
 import { generateProfileStyles } from '../../constants/ProfileStyle';
 import i18n from '../../localization/translation.js';
+import * as ImagePicker from 'expo-image-picker';
 
 const ProfileInput = ({ label, value, onChangeText, placeholder, keyboardType, disabled, security, onToggleSecurity, colors, styles, errorMessage }) => (
     <View style={styles.inputContainer}>
@@ -37,7 +38,6 @@ const ProfileInput = ({ label, value, onChangeText, placeholder, keyboardType, d
     </View>
 );
 
-// Individual Build Card Component
 const SavedBuildCard = ({ savedBuild, server, user, setUser, colors, styles, router }) => {
     const [expanded, setExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const [formData, setFormData] = useState({
-        id: '', name: '', email: '', phone: '', birthday: '', password: ''
+        id: '', name: '', email: '', phone: '', birthday: '', password: '', avatar: ''
     });
     const [errors, setErrors] = useState({});
 
@@ -174,12 +174,12 @@ export default function ProfileScreen() {
                 email: user.email || '',
                 phone: user.phone || '',
                 birthday: user.birthday || '',
-                password: user.password || ''
+                password: user.password || '',
+                avatar: user.avatar || ''
             });
         }
     }, [user]);
 
-    // Guest Interception
     if (!user) {
         return (
             <View style={styles.guestContainer}>
@@ -228,7 +228,8 @@ export default function ProfileScreen() {
             email: formData.email,
             phone: formData.phone,
             birthday: formData.birthday,
-            password: formData.password
+            password: formData.password,
+            avatar: formData.avatar
         };
 
         try {
@@ -244,9 +245,61 @@ export default function ProfileScreen() {
         }
     };
 
+    const pickImage = async (mode) => {
+        let result;
+        const options = {
+            mediaTypes: ['images'], 
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.3, 
+            base64: true, 
+        };
+
+        if (mode === 'camera') {
+            await ImagePicker.requestCameraPermissionsAsync();
+            result = await ImagePicker.launchCameraAsync(options);
+        } else {
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+            result = await ImagePicker.launchImageLibraryAsync(options);
+        }
+
+        if (!result.canceled) {
+            setFormData({...formData, avatar: `data:image/jpeg;base64,${result.assets[0].base64}`});
+        }
+    };
+
+    const handleImageChoice = () => {
+        Alert.alert(
+            "Profile Picture",
+            "Choose an option",
+            [
+                { text: "Take Photo", onPress: () => pickImage('camera') },
+                { text: "Choose from Gallery", onPress: () => pickImage('gallery') },
+                { text: "Cancel", style: "cancel" }
+            ]
+        );
+    };
+
     const renderInfoForm = () => (
         <View style={styles.sectionContainer}>
             <Text style={styles.sectionHeader}>{i18n.t('prof_sec_personal')}</Text>
+
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                <TouchableOpacity onPress={handleImageChoice}>
+                    {formData.avatar ? (
+                        <Image 
+                            source={{ uri: formData.avatar }} 
+                            style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: colors.primaryAccent }} 
+                        />
+                    ) : (
+                        <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: colors.primaryAccent }}>
+                            <MaterialCommunityIcons name="camera-plus" size={40} color={colors.primaryAccent} />
+                        </View>
+                    )}
+                </TouchableOpacity>
+                <Text style={{ marginTop: 8, color: colors.textGrey, fontSize: 12 }}>Tap to change picture</Text>
+            </View>
+
             <ProfileInput label={i18n.t('prof_lbl_id_fixed')} value={formData.id} disabled colors={colors} styles={styles} />
             <ProfileInput label={i18n.t('prof_lbl_name')} value={formData.name} onChangeText={(text) => setFormData({...formData, name: text})} errorMessage={errors.name} colors={colors} styles={styles} />
             <ProfileInput label={i18n.t('prof_lbl_email')} value={formData.email} onChangeText={(text) => setFormData({...formData, email: text})} keyboardType="email-address" errorMessage={errors.email} colors={colors} styles={styles} />
@@ -317,7 +370,6 @@ export default function ProfileScreen() {
 
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                         {isLandscape ? (
-                            // Landscape Layout: Split Screen
                             <View style={styles.landscapeRow}>
                                 <View style={styles.landscapeCol}>{renderInfoForm()}</View>
                                 <View style={styles.landscapeCol}>{renderBuilds()}</View>

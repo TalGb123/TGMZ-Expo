@@ -125,7 +125,6 @@ export default function RegisterScreen() {
 
     setLoading(true);
     
-    // Format date properly before sending
     const formattedBirthday = birthday.toISOString().split('T')[0];
 
     try {

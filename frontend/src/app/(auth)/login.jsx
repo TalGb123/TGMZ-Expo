@@ -23,7 +23,6 @@ export default function LoginScreen() {
     const [fieldErrors, setFieldErrors] = useState({});
     const [generalError, setGeneralError] = useState("");
 
-    // Language states
     const [showLangMenu, setShowLangMenu] = useState(false);
     const [currentLocale, setCurrentLocale] = useState(i18n.locale);
 
@@ -34,11 +33,10 @@ export default function LoginScreen() {
         await AsyncStorage.setItem('app_language', langCode);
     };
 
-    // Load saved credentials on mount
     useEffect(() => {
         const loadCredentials = async () => {
             try {
-                // Check for saved language first
+                
                 const savedLang = await AsyncStorage.getItem('app_language');
                 if (savedLang) {
                     i18n.locale = savedLang;
@@ -85,7 +83,6 @@ export default function LoginScreen() {
             if (response.status === 200) {
                 setUser(response.data.user);
                 
-                // Handle Remember Me Storage
                 if (rememberMe) {
                     await AsyncStorage.setItem('saved_identifier', identifier);
                     await AsyncStorage.setItem('saved_password', password);

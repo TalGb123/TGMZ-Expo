@@ -105,7 +105,6 @@ export default function InventoryScreen() {
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
 
-    // Modal States
     const [showModal, setShowModal] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({});
@@ -185,7 +184,6 @@ export default function InventoryScreen() {
         try {
             const payload = { ...formData, category: modalCategory };
             
-            // Reconstruct nested arrays for specific schemas before saving
             if (modalCategory === "Memory") {
                 payload.speed = [formData.memory_gen, Number(formData.speed_mhz), Number(formData.cas_latency)];
                 payload.modules = [Number(formData.module_sticks), Number(formData.module_capacity)];
@@ -244,7 +242,6 @@ export default function InventoryScreen() {
         });
     };
 
-    // --- RENDER BLOCK FOR UNAUTHORIZED USERS ---
     if (!user || !user.isAdmin) {
         return (
             <View style={styles.centerContainer}>
@@ -479,7 +476,6 @@ export default function InventoryScreen() {
                                     );
                                 }
 
-                                // Default Number/Text Input
                                 return (
                                     <View key={prop.name} style={styles.formGroup}>
                                         <Text style={styles.label}>{i18n.t(prop.translationKey)}</Text>
