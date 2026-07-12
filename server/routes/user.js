@@ -77,7 +77,7 @@
         }
 
         try {
-            const updatedUser = await User.findOneAndUpdate({ id: id }, updates, { new: true });
+            const updatedUser = await User.findOneAndUpdate({ id: id }, updates, { returnDocument: 'after' });
             
             if (!updatedUser) {
                 return res.status(404).json({ message: "User not found" });
@@ -120,7 +120,7 @@
             const user = await User.findOneAndUpdate(
                 { id: req.params.id, "savedBuilds.buildRef": buildRef },
                 { $set: { "savedBuilds.$.buildName": newName } },
-                { new: true }
+                { returnDocument: 'after' }
             ).populate('savedBuilds.buildRef'); 
 
             if (!user) return res.status(404).json({ message: "User or saved build not found" });
@@ -137,7 +137,7 @@
             const user = await User.findOneAndUpdate(
                 { id: req.params.id },
                 { $pull: { savedBuilds: { buildRef: req.params.buildRef } } },
-                { new: true }
+                { returnDocument: 'after' }
             ).populate('savedBuilds.buildRef');
 
             if (!user) return res.status(404).json({ message: "User not found" });
