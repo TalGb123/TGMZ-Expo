@@ -76,10 +76,7 @@ export default function ProductsScreen() {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.listWrapper}>
-                        <CategoryList 
-                            category={category} 
-                            onSelect={(part) => console.log("Added to cart:", part)} 
-                        />
+                        <CategoryList category={category} />
                     </View>
                 </View>
             )}

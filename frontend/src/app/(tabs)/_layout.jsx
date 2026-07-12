@@ -38,10 +38,34 @@ export default function TabsLayout() {
                 </TouchableOpacity>
             ) : null
         }}>
-            <Tabs.Screen name="products" options={{ title: i18n.t('tab_store') }} />
-            <Tabs.Screen name="spec-builder" options={{ title: i18n.t('tab_builder') }} />
-            <Tabs.Screen name="profile" options={{ title: i18n.t('tab_profile') }} />
-            <Tabs.Screen name="inventory" options={{ title: i18n.t('tab_inventory') }} />
+            <Tabs.Screen 
+                name="products" 
+                options={{ 
+                    title: i18n.t('tab_store'),
+                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="storefront-outline" size={size} color={color} />
+                }} 
+            />
+            <Tabs.Screen 
+                name="spec-builder" 
+                options={{ 
+                    title: i18n.t('tab_builder'),
+                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="desktop-tower" size={size} color={color} />
+                }} 
+            />
+            <Tabs.Screen 
+                name="profile" 
+                options={{ 
+                    title: i18n.t('tab_profile'),
+                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account-outline" size={size} color={color} />
+                }} 
+            />
+            <Tabs.Screen 
+                name="inventory" 
+                options={{ 
+                    title: i18n.t('tab_inventory'),
+                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="clipboard-list-outline" size={size} color={color} />
+                }} 
+            />
         </Tabs>
     );
 }

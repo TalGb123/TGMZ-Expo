@@ -185,6 +185,7 @@ export default function CategoryList({ category, onSelect }) {
                 <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
                 <Text style={styles.price}>₪{item.price}</Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
+                    
                     <TouchableOpacity 
                         style={[styles.addBtn, { flex: 1, backgroundColor: '#6c757d' }]} 
                         onPress={() => router.push(`/product/${item._id}`)}
@@ -192,9 +193,13 @@ export default function CategoryList({ category, onSelect }) {
                         <Text style={styles.addBtnText}>{i18n.t('catlist_view_details')}</Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
-                        <Text style={styles.addBtnText}>{i18n.t('catlist_add_pc')}</Text>
-                    </TouchableOpacity>
+                    {/* This ensures the button only renders if onSelect exists */}
+                    {onSelect && (
+                        <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => onSelect(item)}>
+                            <Text style={styles.addBtnText}>{i18n.t('catlist_add_pc')}</Text>
+                        </TouchableOpacity>
+                    )}
+                    
                 </View>
             </View>
         </View>

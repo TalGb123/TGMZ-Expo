@@ -62,6 +62,7 @@ export default function SpecBuilderScreen() {
                     setHasChanges(false);
                     setMsg(i18n.t('spec_msg_load_success'));
                     
+                    // Consume the ID so tab-switching doesn't wipe current progress
                     router.setParams({ editBuildId: "" });
                     
                 } catch (err) {
